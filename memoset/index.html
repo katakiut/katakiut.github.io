@@ -1,0 +1,2465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Memo Set — Tu rutina, tu progreso</title>
+<meta name="description" content="Memo Set: arma tu rutina, registra tus pesos y recuerda dónde dejaste tu progreso." />
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color" content="#0B0D0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Memo Set">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  html, body { margin:0; padding:0; background:#0B0D0C; }
+  * { -webkit-tap-highlight-color: transparent; }
+</style>
+
+<style id="memoset-theme">
+  :root {
+    color-scheme: dark;
+    --ms-bg: #0b0d0c;
+    --ms-panel: #151817;
+    --ms-panel-2: #1e2220;
+    --ms-line: #252c28;
+    --ms-green: #19f59a;
+    --ms-mint: #47f2d0;
+    --ms-accent: #19f59a;
+  }
+  html { background: var(--ms-bg); }
+  body {
+    min-width: 320px;
+    color: #f4f7f2;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(25, 245, 154, .10), transparent 28rem),
+      radial-gradient(circle at 92% 18%, rgba(71, 242, 208, .065), transparent 25rem),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.018) 0 1px, transparent 1px 4px),
+      var(--ms-bg);
+  }
+  button, input, select { font: inherit; }
+  button { transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease, opacity .18s ease; }
+  button:active { transform: scale(.98); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--ms-green); outline-offset: 2px; }
+  .app-shell {
+    position: relative;
+    overflow: hidden;
+    max-width: 1060px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: linear-gradient(180deg, rgba(13,16,14,.98), rgba(11,13,12,.995));
+    box-shadow: 0 0 100px rgba(0,0,0,.35);
+  }
+  .app-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .24;
+    background-image: radial-gradient(rgba(255,255,255,.12) .6px, transparent .6px);
+    background-size: 5px 5px;
+    mask-image: linear-gradient(to bottom, black, transparent 78%);
+  }
+  .app-header {
+    background: rgba(11,13,12,.84) !important;
+    border-bottom-color: rgba(25,245,154,.12) !important;
+    box-shadow: 0 14px 35px rgba(0,0,0,.16);
+  }
+  .brand-mark {
+    position: relative;
+    background: linear-gradient(145deg, #47f2d0, #19d887) !important;
+    box-shadow: 0 0 0 4px rgba(25,245,154,.08), 0 0 28px rgba(25,245,154,.34);
+  }
+  .brand-mark { overflow: hidden; padding: 0; background: #06231a !important; }
+  .brand-logo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+  .icon-action { background: rgba(30,34,32,.82) !important; border: 1px solid rgba(255,255,255,.04); }
+  .icon-action:hover { border-color: rgba(25,245,154,.46); color: var(--ms-green) !important; box-shadow: 0 0 18px rgba(25,245,154,.12); }
+  .day-nav { scrollbar-width: none; }
+  .day-nav::-webkit-scrollbar { display: none; }
+  .day-tab { min-width: 86px !important; border-radius: 14px !important; background: rgba(21,24,23,.78) !important; border-color: rgba(255,255,255,.07) !important; }
+  .day-tab:hover { border-color: rgba(25,245,154,.4) !important; transform: translateY(-1px); }
+  .day-tab[style*="background"] { box-shadow: 0 8px 25px rgba(0,0,0,.24); }
+  .session-meta { background: linear-gradient(120deg, rgba(21,24,23,.92), rgba(30,34,32,.72)) !important; border-color: rgba(25,245,154,.15) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+  .exercise-card, .stats-card {
+    position: relative;
+    background: linear-gradient(145deg, rgba(24,28,26,.96), rgba(17,20,19,.96)) !important;
+    border-color: rgba(255,255,255,.075) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 14px 28px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.025);
+  }
+  .exercise-card::after, .stats-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 22px; right: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(25,245,154,.35), transparent);
+    opacity: .65;
+  }
+  .exercise-card input, .exercise-card select, .picker-card input, .picker-card select, .session-meta input {
+    border-color: rgba(255,255,255,.08) !important;
+  }
+  .exercise-card input:focus, .picker-card input:focus, .picker-card select:focus, .session-meta input:focus { border-color: rgba(25,245,154,.75) !important; box-shadow: 0 0 0 3px rgba(25,245,154,.1); }
+  .picker-card { background: rgba(26,31,28,.96) !important; border-color: rgba(25,245,154,.55) !important; box-shadow: 0 16px 35px rgba(0,0,0,.22); }
+  .finish-bar { background: linear-gradient(180deg, rgba(11,13,12,0), rgba(11,13,12,.95) 35%) !important; border-top-color: rgba(25,245,154,.12) !important; }
+  .finish-bar button { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; border: 1px solid rgba(71,242,208,.38); box-shadow: 0 8px 28px rgba(25,245,154,.23); letter-spacing: .01em; }
+  .finish-bar button:hover { box-shadow: 0 10px 34px rgba(25,245,154,.34); transform: translateY(-1px); }
+  .toast { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; box-shadow: 0 10px 30px rgba(25,245,154,.25); }
+  .login-screen { background: transparent !important; }
+  .login-screen > div { position: relative; padding: 2.5rem 1.4rem; border: 1px solid rgba(255,255,255,.07); border-radius: 28px; background: linear-gradient(145deg, rgba(21,24,23,.94), rgba(14,17,15,.88)); box-shadow: 0 24px 70px rgba(0,0,0,.3), 0 0 50px rgba(25,245,154,.05); }
+  .login-screen > div::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; background: linear-gradient(135deg, rgba(25,245,154,.3), transparent 30%, transparent 70%, rgba(25,245,154,.2)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; padding: 1px; }
+  .login-mark { margin-top: -4px; }
+  .loading-screen { background: transparent !important; }
+  .stats-card { padding-top: 18px !important; }
+  .login-screen button { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; box-shadow: 0 8px 24px rgba(25,245,154,.2); }
+  .login-screen input:focus { border-color: #19f59a !important; box-shadow: 0 0 0 3px rgba(25,245,154,.12); }
+  .day-tab:hover { box-shadow: 0 0 18px rgba(25,245,154,.09); }
+  .picker-card { border-color: rgba(25,245,154,.48) !important; }
+  .brand-mark { box-shadow: 0 0 0 3px rgba(25,245,154,.12), 0 0 22px rgba(25,245,154,.3); }
+  .exercise-card::after, .stats-card::after { background: linear-gradient(90deg, transparent, rgba(25,245,154,.46), rgba(71,242,208,.26), transparent); }
+  @media (min-width: 700px) {
+    .app-shell { border-left: 1px solid rgba(255,255,255,.035); border-right: 1px solid rgba(255,255,255,.035); }
+    .app-header { padding-left: 34px !important; padding-right: 34px !important; }
+    .app-shell > .px-4 { padding-left: 34px; padding-right: 34px; }
+  }
+  @media (max-width: 560px) {
+    .app-shell { width: 100%; }
+    .login-screen > div { border: 1px solid rgba(71,242,208,.18); border-radius: 24px; background: linear-gradient(150deg, rgba(17,25,21,.97), rgba(8,14,11,.97)); box-shadow: 0 18px 48px rgba(0,0,0,.28); padding: 2rem 1.15rem; }
+    .login-screen > div::before { display: block; }
+  }
+
+  /* Global contrast and component consistency: no dark-on-dark native controls. */
+  :root { --ms-green: #19f59a; --ms-mint: #47f2d0; --ms-copy: #f3f8f4; --ms-muted: #c0cec6; --ms-subtle: #a3b2aa; }
+  .app-shell, .login-screen { color: var(--ms-copy); }
+  .app-shell input, .app-shell select, .login-screen input, .login-screen select {
+    color: var(--ms-copy) !important;
+    background-color: #151b18 !important;
+    border-color: #34483f !important;
+    caret-color: var(--ms-green);
+  }
+  input::placeholder, textarea::placeholder { color: #a3b2aa !important; opacity: 1; }
+  select option { color: #f3f8f4; background: #151b18; }
+  .app-shell button:not(.finish-bar button):not(.login-screen button) { transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+  .app-shell button:hover { filter: brightness(1.08); }
+  .day-tab:not(.active) { color: #f3f8f4; }
+  .day-tab.active { background: linear-gradient(145deg, #1a2721, #121915) !important; border: 1px solid #19f59a !important; box-shadow: inset 0 0 0 1px rgba(25,245,154,.08), 0 0 20px rgba(25,245,154,.10); }
+  .day-tab.active p:first-child { color: #47f2d0 !important; }
+  .day-tab.active p:last-child { color: #c0cec6 !important; }
+  .picker-card { color: #f3f8f4; border-style: solid !important; background: linear-gradient(145deg, #1a211e, #121714) !important; }
+  .picker-card input, .picker-card select { background: #101512 !important; }
+  .exercise-card, .stats-card { color: #f3f8f4; }
+  .session-meta input { background: #101512 !important; }
+  .icon-action { color: #d4e0d9 !important; }
+  .brand-lockup { font-family: "Space Grotesk", sans-serif; font-weight: 700; letter-spacing: -.035em; color: #f4f7f2; }
+  .brand-lockup span { color: #3be98f !important; }
+  .brand-tagline { color: #35e99a !important; font-family: "DM Sans", sans-serif; font-weight: 700; text-shadow: 0 0 22px rgba(25,245,154,.18); }
+  .brand-tagline { color: #35e99a !important; text-shadow: 0 0 22px rgba(25,245,154,.18); }
+  .brand-mark { background: #06231a !important; }
+  .finish-bar button, .login-screen button { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #47f2d0) !important; border-color: rgba(71,242,208,.45) !important; }
+  .toast { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #47f2d0) !important; }
+  .login-screen > div { border-color: rgba(71,242,208,.18); background: linear-gradient(150deg, rgba(17,25,21,.97), rgba(8,14,11,.97)); }
+  .picker-card button:hover, .icon-action:hover { color: #47f2d0 !important; }
+  .stats-empty { border: 1px solid rgba(71,242,208,.17); background: linear-gradient(145deg, rgba(21,29,25,.88), rgba(12,18,15,.94)); box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 18px 45px rgba(0,0,0,.2); }
+  .stats-empty svg { color: #47f2d0 !important; filter: drop-shadow(0 0 12px rgba(71,242,208,.28)); }
+  .stats-empty p { color: #c0cec6 !important; line-height: 1.6; }
+  .stats-empty p:first-of-type { color: #f3f8f4 !important; font-weight: 600; }
+  ::selection { color: #05271b; background: #47f2d0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {
+  useState,
+  useEffect,
+  useRef,
+  useMemo
+} = React;
+
+/* ---------------------------------------------------------
+   Hand-rolled icons (feather-style) — no external icon library needed
+--------------------------------------------------------- */
+function mkIcon(children) {
+  return function IconCmp({
+    size = 16,
+    color = "currentColor",
+    className,
+    style
+  }) {
+    return /*#__PURE__*/React.createElement("svg", {
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: color,
+      strokeWidth: "2",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      className: className,
+      style: style
+    }, children);
+  };
+}
+const Dumbbell = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M6.5 6.5 17.5 17.5"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M4 9l3-3M17 20l3-3"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M2.5 15.5 4 14M20 10l1.5-1.5"
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: "3.2",
+  cy: "16.8",
+  r: "1.6"
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: "20.8",
+  cy: "7.2",
+  r: "1.6"
+})));
+const Pencil = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
+})));
+const Check = mkIcon(/*#__PURE__*/React.createElement("polyline", {
+  points: "20 6 9 17 4 12"
+}));
+const Plus = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("line", {
+  x1: "12",
+  y1: "5",
+  x2: "12",
+  y2: "19"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "5",
+  y1: "12",
+  x2: "19",
+  y2: "12"
+})));
+const Trash2 = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("polyline", {
+  points: "3 6 5 6 21 6"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M10 11v6M14 11v6"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+})));
+const ChevronDown = mkIcon(/*#__PURE__*/React.createElement("polyline", {
+  points: "6 9 12 15 18 9"
+}));
+const ChevronUp = mkIcon(/*#__PURE__*/React.createElement("polyline", {
+  points: "18 15 12 9 6 15"
+}));
+const Info = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("circle", {
+  cx: "12",
+  cy: "12",
+  r: "10"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "12",
+  y1: "11.5",
+  x2: "12",
+  y2: "16.5"
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: "12",
+  cy: "8",
+  r: "0.9",
+  fill: "currentColor",
+  stroke: "none"
+})));
+const X = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("line", {
+  x1: "18",
+  y1: "6",
+  x2: "6",
+  y2: "18"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "6",
+  y1: "6",
+  x2: "18",
+  y2: "18"
+})));
+const Clock = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("circle", {
+  cx: "12",
+  cy: "12",
+  r: "9"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "12 7 12 12 16 14"
+})));
+const RotateCcw = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M3 11a9 9 0 1 1 2.6 6.4"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "3 4 3 11 10 11"
+})));
+const Save = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M8 4v5h7V4M8 20v-6h8v6"
+})));
+const HistoryIcon = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M3 11a9 9 0 1 1 2.6 6.4"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "3 4 3 11 10 11"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "12 8 12 12 15 14"
+})));
+const Search = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("circle", {
+  cx: "11",
+  cy: "11",
+  r: "7"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "21",
+  y1: "21",
+  x2: "16.6",
+  y2: "16.6"
+})));
+const ArrowLeft = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("line", {
+  x1: "19",
+  y1: "12",
+  x2: "5",
+  y2: "12"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "12 19 5 12 12 5"
+})));
+const TrendingUp = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("polyline", {
+  points: "3 17 9 11 13 15 21 6"
+}), /*#__PURE__*/React.createElement("polyline", {
+  points: "14 6 21 6 21 13"
+})));
+const UserIcon = mkIcon(/*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("circle", {
+  cx: "12",
+  cy: "8",
+  r: "4"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"
+})));
+
+/* ---------------------------------------------------------
+   Tiny hand-rolled line chart (replaces recharts — no CDN needed)
+--------------------------------------------------------- */
+function MiniLineChart({
+  points,
+  color,
+  height = 60
+}) {
+  const w = 300;
+  const h = height;
+  const pad = 6;
+  const values = points.map(p => p.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const stepX = points.length > 1 ? (w - pad * 2) / (points.length - 1) : 0;
+  const coords = points.map((p, i) => {
+    const x = pad + i * stepX;
+    const y = pad + (1 - (p.value - min) / range) * (h - pad * 2);
+    return [x, y];
+  });
+  const path = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${w} ${h}`,
+    width: "100%",
+    height: h,
+    preserveAspectRatio: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: path,
+    fill: "none",
+    stroke: color,
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }), coords.map(([x, y], i) => /*#__PURE__*/React.createElement("circle", {
+    key: i,
+    cx: x,
+    cy: y,
+    r: "2.5",
+    fill: color
+  })));
+}
+
+/* ---------------------------------------------------------
+   Tokens
+--------------------------------------------------------- */
+const C = {
+  bg: "#0B0D0C",
+  surface: "#151817",
+  surfaceAlt: "#1E2220",
+  border: "#303733",
+  borderSoft: "#252C28",
+  text: "#F4F7F2",
+  textDim: "#C0CEC6",
+  textFaint: "#A3B2AA",
+  brass: "#19F59A",
+  brassLight: "#47F2D0",
+  danger: "#F2786B"
+};
+const GROUP_COLORS = {
+  glufem: "#19D887",
+  espalda: "#47F2D0",
+  cuadriceps: "#8CEBC9",
+  pecho: "#74EAB5"
+};
+const EQUIPMENT_OPTIONS = ["Máquina", "Mancuerna", "Barra", "Polea", "Peso corporal"];
+const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap";
+const EXERCISE_IMAGES = new Set(["Barbell_Ab_Rollout","Barbell_Ab_Rollout_-_On_Knees","Dumbbell_Side_Bend","Spell_Caster","Ab_Crunch_Machine","Smith_Machine_Hip_Raise","Bosu_Ball_Cable_Crunch_With_Side_Bends","Cable_Crunch","3_4_Sit-Up","Air_Bike","Barbell_Curl","Barbell_Curls_Lying_Against_An_Incline","Alternate_Hammer_Curl","Alternate_Incline_Dumbbell_Curl","Machine_Bicep_Curl","Machine_Preacher_Curls","Cable_Hammer_Curls_-_Rope_Attachment","Cable_Preacher_Curl","Close-Grip_EZ-Bar_Curl_with_Band","EZ-Bar_Curl","Barbell_Full_Squat","Barbell_Hack_Squat","Dumbbell_Lunges","Dumbbell_Rear_Lunge","Chair_Squat","Hack_Squat","Cable_Deadlifts","Cable_Hip_Adduction","Bench_Jump","Bodyweight_Squat","Anti-Gravity_Press","Barbell_Incline_Shoulder_Raise","Alternating_Deltoid_Raise","Arnold_Dumbbell_Press","Leverage_Shoulder_Press","Machine_Shoulder_Military_Press","Alternating_Cable_Shoulder_Press","Bent_Over_Low-Pulley_Side_Lateral","Handstand_Push-Ups","Alternating_Kettlebell_Press","Barbell_Bench_Press_-_Medium_Grip","Barbell_Guillotine_Bench_Press","Around_The_Worlds","Bent-Arm_Dumbbell_Pullover","Butterfly","Decline_Smith_Press","Cable_Chest_Press","Cable_Crossover","Clock_Push-Up","Incline_Push-Up","Clean","Clean_Deadlift","Dumbbell_Clean","Stiff-Legged_Dumbbell_Deadlift","Glute_Ham_Raise","Lying_Leg_Curls","Knee_Tuck_Jump","Natural_Glute_Ham_Raise","Alternating_Hang_Clean","Double_Kettlebell_Alternating_Hang_Clean","Bent_Over_Barbell_Row","Bent_Over_One-Arm_Long_Bar_Row","Bent_Over_Two-Dumbbell_Row","Bent_Over_Two-Dumbbell_Row_With_Palms_In","Leverage_High_Row","Lying_T-Bar_Row","Seated_Cable_Rows","Seated_One-arm_Cable_Pulley_Rows","Alternating_Kettlebell_Row","Alternating_Renegade_Row","Barbell_Deadlift","Deadlift_with_Bands","Hyperextensions_With_No_Hyperextension_Bench","Weighted_Ball_Hyperextension","Atlas_Stone_Trainer","Atlas_Stones","Barbell_Seated_Calf_Raise","Rocking_Standing_Calf_Raise","Calf_Raise_On_A_Dumbbell","Dumbbell_Seated_One-Leg_Calf_Raise","Calf_Press","Calf_Press_On_The_Leg_Press_Machine","Calf_Raises_-_With_Bands","Balance_Board","Donkey_Calf_Raises","Bent-Arm_Barbell_Pullover","Leverage_Iso_Row","Cable_Incline_Pushdown","Close-Grip_Front_Lat_Pulldown","Chin-Up","Pullups","Catch_and_Overhead_Throw","Overhead_Slam","Band_Assisted_Pull-Up","Gironda_Sternum_Chins","Thigh_Adductor","Lateral_Bound","Band_Hip_Adductions","Lateral_Box_Jump","Lateral_Cone_Hops","Bench_Press_-_Powerlifting","Bench_Press_with_Chains","Close-Grip_Dumbbell_Press","Decline_Dumbbell_Triceps_Extension","Dip_Machine","Machine_Triceps_Extension","Cable_Incline_Triceps_Extension","Cable_Lying_Triceps_Extension","Bench_Dips","Body_Tricep_Press","Barbell_Glute_Bridge","Barbell_Hip_Thrust","One-Legged_Cable_Kickback","Pull_Through","Butt_Lift_Bridge","Flutter_Kicks","Hip_Extension_with_Bands","Hip_Lift_with_Band","Downward_Facing_Balance","Physioball_Hip_Bridge","Barbell_Shrug","Barbell_Shrug_Behind_The_Back","Dumbbell_Shrug","Standing_Dumbbell_Upright_Row","Calf-Machine_Shoulder_Shrug","Leverage_Shrug","Cable_Shrugs","Upright_Cable_Row","Kettlebell_Sumo_High_Pull","Upright_Row_-_With_Bands","Finger_Curls","Palms-Down_Wrist_Curl_Over_A_Bench","Dumbbell_Lying_Pronation","Dumbbell_Lying_Supination","Cable_Wrist_Curl","Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl","Bottoms-Up_Clean_From_The_Hang_Position","Farmers_Walk","Plate_Pinch","Isometric_Neck_Exercise_-_Front_And_Back","Isometric_Neck_Exercise_-_Sides","Lying_Face_Down_Plate_Neck_Resistance","Lying_Face_Up_Plate_Neck_Resistance","Thigh_Abductor","Monster_Walk","Glute_Kickback","Standing_Calf_Raises","Romanian_Deadlift","Smith_Machine_Squat","Barbell_Incline_Bench_Press_-_Medium_Grip","Wide-Grip_Lat_Pulldown","Seated_Dumbbell_Press","T-Bar_Row_with_Handle","Dumbbell_Alternate_Bicep_Curl","Adductor","One-Arm_Dumbbell_Row","Leg_Extensions","Goblet_Squat","Incline_Hammer_Curls","Face_Pull","Side_Lateral_Raise","Triceps_Pushdown","Leg_Press","Elliptical_Trainer","Walking_Treadmill","Jogging_Treadmill","Running_Treadmill","Recumbent_Bike","Bicycling_Stationary","Stairmaster","Rowing_Stationary","Rope_Jumping","Step_Mill"]);
+const EXERCISE_LIBRARY = JSON.parse(`[{"id":"Barbell_Ab_Rollout","n":"Rollout abdominal con barra","en":"barbell ab rollout","eq":"barbell","m":"abdominals","c":false},{"id":"Barbell_Ab_Rollout_-_On_Knees","n":"Rollout abdominal con barra (de rodillas)","en":"barbell ab rollout - on knees","eq":"barbell","m":"abdominals","c":false},{"id":"Dumbbell_Side_Bend","n":"Flexión lateral con mancuerna","en":"dumbbell side bend","eq":"dumbbell","m":"abdominals","c":false},{"id":"Spell_Caster","n":"Giro con mancuerna","en":"spell caster","eq":"dumbbell","m":"abdominals","c":false},{"id":"Ab_Crunch_Machine","n":"Máquina de abdominales","en":"ab crunch machine","eq":"machine","m":"abdominals","c":false},{"id":"Smith_Machine_Hip_Raise","n":"Elevación de cadera en Smith","en":"smith machine hip raise","eq":"machine","m":"abdominals","c":false},{"id":"Bosu_Ball_Cable_Crunch_With_Side_Bends","n":"Crunch en polea sobre Bosu con giro","en":"bosu ball cable crunch with side bends","eq":"cable","m":"abdominals","c":false},{"id":"Cable_Crunch","n":"Crunch en polea","en":"cable crunch","eq":"cable","m":"abdominals","c":false},{"id":"3_4_Sit-Up","n":"Abdominal 3/4","en":"3/4 sit-up","eq":"body only","m":"abdominals","c":false},{"id":"Air_Bike","n":"Bicicleta abdominal","en":"air bike","eq":"body only","m":"abdominals","c":false},{"id":"Barbell_Curl","n":"Curl de bíceps con barra","en":"barbell curl","eq":"barbell","m":"biceps","c":false},{"id":"Barbell_Curls_Lying_Against_An_Incline","n":"Curl con barra en banco inclinado","en":"barbell curls lying against an incline","eq":"barbell","m":"biceps","c":false},{"id":"Alternate_Hammer_Curl","n":"Curl martillo alterno","en":"alternate hammer curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Alternate_Incline_Dumbbell_Curl","n":"Curl alterno en banco inclinado","en":"alternate incline dumbbell curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Machine_Bicep_Curl","n":"Curl de bíceps en máquina","en":"machine bicep curl","eq":"machine","m":"biceps","c":false},{"id":"Machine_Preacher_Curls","n":"Curl predicador en máquina","en":"machine preacher curls","eq":"machine","m":"biceps","c":false},{"id":"Cable_Hammer_Curls_-_Rope_Attachment","n":"Curl martillo en polea con cuerda","en":"cable hammer curls - rope attachment","eq":"cable","m":"biceps","c":false},{"id":"Cable_Preacher_Curl","n":"Curl predicador en polea","en":"cable preacher curl","eq":"cable","m":"biceps","c":false},{"id":"Close-Grip_EZ-Bar_Curl_with_Band","n":"Curl con barra Z cerrado y banda","en":"close-grip ez-bar curl with band","eq":"e-z curl bar","m":"biceps","c":false},{"id":"EZ-Bar_Curl","n":"Curl con barra Z","en":"ez-bar curl","eq":"e-z curl bar","m":"biceps","c":false},{"id":"Barbell_Full_Squat","n":"Sentadilla profunda con barra","en":"barbell full squat","eq":"barbell","m":"quadriceps","c":false},{"id":"Barbell_Hack_Squat","n":"Sentadilla hack con barra","en":"barbell hack squat","eq":"barbell","m":"quadriceps","c":false},{"id":"Dumbbell_Lunges","n":"Zancadas con mancuernas","en":"dumbbell lunges","eq":"dumbbell","m":"quadriceps","c":false},{"id":"Dumbbell_Rear_Lunge","n":"Zancada atrás con mancuernas","en":"dumbbell rear lunge","eq":"dumbbell","m":"quadriceps","c":false},{"id":"Chair_Squat","n":"Sentadilla a la silla","en":"chair squat","eq":"machine","m":"quadriceps","c":false},{"id":"Hack_Squat","n":"Sentadilla Hack (máquina)","en":"hack squat","eq":"machine","m":"quadriceps","c":false},{"id":"Cable_Deadlifts","n":"Peso muerto en polea","en":"cable deadlifts","eq":"cable","m":"quadriceps","c":false},{"id":"Cable_Hip_Adduction","n":"Aducción de cadera en polea","en":"cable hip adduction","eq":"cable","m":"quadriceps","c":false},{"id":"Bench_Jump","n":"Salto al banco","en":"bench jump","eq":"body only","m":"quadriceps","c":false},{"id":"Bodyweight_Squat","n":"Sentadilla con peso corporal","en":"bodyweight squat","eq":"body only","m":"quadriceps","c":false},{"id":"Anti-Gravity_Press","n":"Press anti-gravedad con barra","en":"anti-gravity press","eq":"barbell","m":"shoulders","c":false},{"id":"Barbell_Incline_Shoulder_Raise","n":"Elevación de hombro inclinado con barra","en":"barbell incline shoulder raise","eq":"barbell","m":"shoulders","c":false},{"id":"Alternating_Deltoid_Raise","n":"Elevación de deltoides alterna","en":"alternating deltoid raise","eq":"dumbbell","m":"shoulders","c":false},{"id":"Arnold_Dumbbell_Press","n":"Press Arnold con mancuernas","en":"arnold dumbbell press","eq":"dumbbell","m":"shoulders","c":false},{"id":"Leverage_Shoulder_Press","n":"Press de hombro en máquina","en":"leverage shoulder press","eq":"machine","m":"shoulders","c":false},{"id":"Machine_Shoulder_Military_Press","n":"Press militar en máquina","en":"machine shoulder (military) press","eq":"machine","m":"shoulders","c":false},{"id":"Alternating_Cable_Shoulder_Press","n":"Press de hombro alterno en polea","en":"alternating cable shoulder press","eq":"cable","m":"shoulders","c":false},{"id":"Bent_Over_Low-Pulley_Side_Lateral","n":"Elevación lateral inclinado en polea baja","en":"bent over low-pulley side lateral","eq":"cable","m":"shoulders","c":false},{"id":"Handstand_Push-Ups","n":"Flexiones en pino","en":"handstand push-ups","eq":"body only","m":"shoulders","c":false},{"id":"Alternating_Kettlebell_Press","n":"Press alterno con kettlebell","en":"alternating kettlebell press","eq":"kettlebells","m":"shoulders","c":false},{"id":"Barbell_Bench_Press_-_Medium_Grip","n":"Press de banca con barra","en":"barbell bench press - medium grip","eq":"barbell","m":"chest","c":false},{"id":"Barbell_Guillotine_Bench_Press","n":"Press de banca guillotina con barra","en":"barbell guillotine bench press","eq":"barbell","m":"chest","c":false},{"id":"Around_The_Worlds","n":"Vueltas con mancuernas","en":"around the worlds","eq":"dumbbell","m":"chest","c":false},{"id":"Bent-Arm_Dumbbell_Pullover","n":"Pullover con mancuerna","en":"bent-arm dumbbell pullover","eq":"dumbbell","m":"chest","c":false},{"id":"Butterfly","n":"Máquina de aperturas (mariposa)","en":"butterfly","eq":"machine","m":"chest","c":false},{"id":"Decline_Smith_Press","n":"Press declinado en Smith","en":"decline smith press","eq":"machine","m":"chest","c":false},{"id":"Cable_Chest_Press","n":"Press de pecho en polea","en":"cable chest press","eq":"cable","m":"chest","c":false},{"id":"Cable_Crossover","n":"Cruce de poleas","en":"cable crossover","eq":"cable","m":"chest","c":false},{"id":"Clock_Push-Up","n":"Flexión de pecho tipo reloj","en":"clock push-up","eq":"body only","m":"chest","c":false},{"id":"Incline_Push-Up","n":"Flexión de pecho inclinada","en":"incline push-up","eq":"body only","m":"chest","c":false},{"id":"Clean","n":"Cargada (clean)","en":"clean","eq":"barbell","m":"hamstrings","c":false},{"id":"Clean_Deadlift","n":"Peso muerto para cargada","en":"clean deadlift","eq":"barbell","m":"hamstrings","c":false},{"id":"Dumbbell_Clean","n":"Cargada con mancuernas","en":"dumbbell clean","eq":"dumbbell","m":"hamstrings","c":false},{"id":"Stiff-Legged_Dumbbell_Deadlift","n":"Peso muerto piernas rígidas con mancuerna","en":"stiff-legged dumbbell deadlift","eq":"dumbbell","m":"hamstrings","c":false},{"id":"Glute_Ham_Raise","n":"Elevación glúteo-femoral","en":"glute ham raise","eq":"machine","m":"hamstrings","c":false},{"id":"Lying_Leg_Curls","n":"Curl femoral acostado","en":"lying leg curls","eq":"machine","m":"hamstrings","c":false},{"id":"Knee_Tuck_Jump","n":"Salto con rodillas al pecho","en":"knee tuck jump","eq":"body only","m":"hamstrings","c":false},{"id":"Natural_Glute_Ham_Raise","n":"Elevación glúteo-femoral natural","en":"natural glute ham raise","eq":"body only","m":"hamstrings","c":false},{"id":"Alternating_Hang_Clean","n":"Cargada colgante alterna con kettlebell","en":"alternating hang clean","eq":"kettlebells","m":"hamstrings","c":false},{"id":"Double_Kettlebell_Alternating_Hang_Clean","n":"Cargada colgante alterna con dos kettlebells","en":"double kettlebell alternating hang clean","eq":"kettlebells","m":"hamstrings","c":false},{"id":"Bent_Over_Barbell_Row","n":"Remo con barra inclinado","en":"bent over barbell row","eq":"barbell","m":"middle back","c":false},{"id":"Bent_Over_One-Arm_Long_Bar_Row","n":"Remo a un brazo con barra larga","en":"bent over one-arm long bar row","eq":"barbell","m":"middle back","c":false},{"id":"Bent_Over_Two-Dumbbell_Row","n":"Remo con dos mancuernas inclinado","en":"bent over two-dumbbell row","eq":"dumbbell","m":"middle back","c":false},{"id":"Bent_Over_Two-Dumbbell_Row_With_Palms_In","n":"Remo con mancuernas, palmas adentro","en":"bent over two-dumbbell row with palms in","eq":"dumbbell","m":"middle back","c":false},{"id":"Leverage_High_Row","n":"Remo alto en máquina","en":"leverage high row","eq":"machine","m":"middle back","c":false},{"id":"Lying_T-Bar_Row","n":"Remo en T acostado","en":"lying t-bar row","eq":"machine","m":"middle back","c":false},{"id":"Seated_Cable_Rows","n":"Remo sentado en polea","en":"seated cable rows","eq":"cable","m":"middle back","c":false},{"id":"Seated_One-arm_Cable_Pulley_Rows","n":"Remo sentado a un brazo en polea","en":"seated one-arm cable pulley rows","eq":"cable","m":"middle back","c":false},{"id":"Alternating_Kettlebell_Row","n":"Remo alterno con kettlebell","en":"alternating kettlebell row","eq":"kettlebells","m":"middle back","c":false},{"id":"Alternating_Renegade_Row","n":"Remo renegado alterno","en":"alternating renegade row","eq":"kettlebells","m":"middle back","c":false},{"id":"Barbell_Deadlift","n":"Peso muerto con barra","en":"barbell deadlift","eq":"barbell","m":"lower back","c":false},{"id":"Deadlift_with_Bands","n":"Peso muerto con bandas","en":"deadlift with bands","eq":"barbell","m":"lower back","c":false},{"id":"Hyperextensions_With_No_Hyperextension_Bench","n":"Hiperextensión de espalda sin banco","en":"hyperextensions with no hyperextension bench","eq":"body only","m":"lower back","c":false},{"id":"Weighted_Ball_Hyperextension","n":"Hiperextensión con balón con peso","en":"weighted ball hyperextension","eq":"exercise ball","m":"lower back","c":false},{"id":"Atlas_Stone_Trainer","n":"Piedra Atlas (entrenamiento)","en":"atlas stone trainer","eq":"other","m":"lower back","c":false},{"id":"Atlas_Stones","n":"Piedras Atlas","en":"atlas stones","eq":"other","m":"lower back","c":false},{"id":"Barbell_Seated_Calf_Raise","n":"Elevación de talones sentado con barra","en":"barbell seated calf raise","eq":"barbell","m":"calves","c":false},{"id":"Rocking_Standing_Calf_Raise","n":"Elevación de talones de pie (rocking)","en":"rocking standing calf raise","eq":"barbell","m":"calves","c":false},{"id":"Calf_Raise_On_A_Dumbbell","n":"Elevación de talones sobre mancuerna","en":"calf raise on a dumbbell","eq":"dumbbell","m":"calves","c":false},{"id":"Dumbbell_Seated_One-Leg_Calf_Raise","n":"Elevación de talones sentado a una pierna","en":"dumbbell seated one-leg calf raise","eq":"dumbbell","m":"calves","c":false},{"id":"Calf_Press","n":"Prensa de pantorrilla","en":"calf press","eq":"machine","m":"calves","c":false},{"id":"Calf_Press_On_The_Leg_Press_Machine","n":"Pantorrilla en prensa de piernas","en":"calf press on the leg press machine","eq":"machine","m":"calves","c":false},{"id":"Calf_Raises_-_With_Bands","n":"Elevación de talones con banda","en":"calf raises - with bands","eq":"bands","m":"calves","c":false},{"id":"Balance_Board","n":"Tabla de equilibrio","en":"balance board","eq":"other","m":"calves","c":false},{"id":"Donkey_Calf_Raises","n":"Elevación de talones tipo burro","en":"donkey calf raises","eq":"other","m":"calves","c":false},{"id":"Bent-Arm_Barbell_Pullover","n":"Pullover con barra","en":"bent-arm barbell pullover","eq":"barbell","m":"lats","c":false},{"id":"Leverage_Iso_Row","n":"Remo iso en máquina","en":"leverage iso row","eq":"machine","m":"lats","c":false},{"id":"Cable_Incline_Pushdown","n":"Jalón inclinado en polea","en":"cable incline pushdown","eq":"cable","m":"lats","c":false},{"id":"Close-Grip_Front_Lat_Pulldown","n":"Jalón al pecho agarre cerrado","en":"close-grip front lat pulldown","eq":"cable","m":"lats","c":false},{"id":"Chin-Up","n":"Dominada agarre supino","en":"chin-up","eq":"body only","m":"lats","c":false},{"id":"Pullups","n":"Dominadas","en":"pullups","eq":"body only","m":"lats","c":false},{"id":"Catch_and_Overhead_Throw","n":"Recepción y lanzamiento sobre cabeza","en":"catch and overhead throw","eq":"medicine ball","m":"lats","c":false},{"id":"Overhead_Slam","n":"Golpe de balón medicinal sobre cabeza","en":"overhead slam","eq":"medicine ball","m":"lats","c":false},{"id":"Band_Assisted_Pull-Up","n":"Dominada asistida con banda","en":"band assisted pull-up","eq":"other","m":"lats","c":false},{"id":"Gironda_Sternum_Chins","n":"Dominada al esternón","en":"gironda sternum chins","eq":"other","m":"lats","c":false},{"id":"Thigh_Adductor","n":"Máquina de aductor","en":"thigh adductor","eq":"machine","m":"adductors","c":false},{"id":"Lateral_Bound","n":"Salto lateral","en":"lateral bound","eq":"body only","m":"adductors","c":false},{"id":"Band_Hip_Adductions","n":"Aducción de cadera con banda","en":"band hip adductions","eq":"bands","m":"adductors","c":false},{"id":"Lateral_Box_Jump","n":"Salto lateral al cajón","en":"lateral box jump","eq":"other","m":"adductors","c":false},{"id":"Lateral_Cone_Hops","n":"Saltos laterales sobre conos","en":"lateral cone hops","eq":"other","m":"adductors","c":false},{"id":"Bench_Press_-_Powerlifting","n":"Press de banca powerlifting","en":"bench press - powerlifting","eq":"barbell","m":"triceps","c":false},{"id":"Bench_Press_with_Chains","n":"Press de banca con cadenas","en":"bench press with chains","eq":"barbell","m":"triceps","c":false},{"id":"Close-Grip_Dumbbell_Press","n":"Press cerrado con mancuernas","en":"close-grip dumbbell press","eq":"dumbbell","m":"triceps","c":false},{"id":"Decline_Dumbbell_Triceps_Extension","n":"Extensión de tríceps declinado con mancuerna","en":"decline dumbbell triceps extension","eq":"dumbbell","m":"triceps","c":false},{"id":"Dip_Machine","n":"Fondos en máquina","en":"dip machine","eq":"machine","m":"triceps","c":false},{"id":"Machine_Triceps_Extension","n":"Extensión de tríceps en máquina","en":"machine triceps extension","eq":"machine","m":"triceps","c":false},{"id":"Cable_Incline_Triceps_Extension","n":"Extensión de tríceps inclinado en polea","en":"cable incline triceps extension","eq":"cable","m":"triceps","c":false},{"id":"Cable_Lying_Triceps_Extension","n":"Extensión de tríceps acostado en polea","en":"cable lying triceps extension","eq":"cable","m":"triceps","c":false},{"id":"Bench_Dips","n":"Fondos en banco","en":"bench dips","eq":"body only","m":"triceps","c":false},{"id":"Body_Tricep_Press","n":"Press de tríceps con el cuerpo","en":"body tricep press","eq":"body only","m":"triceps","c":false},{"id":"Barbell_Glute_Bridge","n":"Puente de glúteo con barra","en":"barbell glute bridge","eq":"barbell","m":"glutes","c":false},{"id":"Barbell_Hip_Thrust","n":"Hip thrust con barra","en":"barbell hip thrust","eq":"barbell","m":"glutes","c":false},{"id":"One-Legged_Cable_Kickback","n":"Pateo de glúteo en polea a una pierna","en":"one-legged cable kickback","eq":"cable","m":"glutes","c":false},{"id":"Pull_Through","n":"Pull through en polea","en":"pull through","eq":"cable","m":"glutes","c":false},{"id":"Butt_Lift_Bridge","n":"Puente de glúteo","en":"butt lift (bridge)","eq":"body only","m":"glutes","c":false},{"id":"Flutter_Kicks","n":"Patada de tijera","en":"flutter kicks","eq":"body only","m":"glutes","c":false},{"id":"Hip_Extension_with_Bands","n":"Extensión de cadera con banda","en":"hip extension with bands","eq":"bands","m":"glutes","c":false},{"id":"Hip_Lift_with_Band","n":"Elevación de cadera con banda","en":"hip lift with band","eq":"bands","m":"glutes","c":false},{"id":"Downward_Facing_Balance","n":"Equilibrio boca abajo en balón","en":"downward facing balance","eq":"exercise ball","m":"glutes","c":false},{"id":"Physioball_Hip_Bridge","n":"Puente de cadera sobre balón","en":"physioball hip bridge","eq":"exercise ball","m":"glutes","c":false},{"id":"Barbell_Shrug","n":"Encogimiento de hombros con barra","en":"barbell shrug","eq":"barbell","m":"traps","c":false},{"id":"Barbell_Shrug_Behind_The_Back","n":"Encogimiento de hombros con barra por detrás","en":"barbell shrug behind the back","eq":"barbell","m":"traps","c":false},{"id":"Dumbbell_Shrug","n":"Encogimiento de hombros con mancuernas","en":"dumbbell shrug","eq":"dumbbell","m":"traps","c":false},{"id":"Standing_Dumbbell_Upright_Row","n":"Remo al mentón con mancuernas","en":"standing dumbbell upright row","eq":"dumbbell","m":"traps","c":false},{"id":"Calf-Machine_Shoulder_Shrug","n":"Encogimiento de hombros en máquina de pantorrilla","en":"calf-machine shoulder shrug","eq":"machine","m":"traps","c":false},{"id":"Leverage_Shrug","n":"Encogimiento de hombros en máquina","en":"leverage shrug","eq":"machine","m":"traps","c":false},{"id":"Cable_Shrugs","n":"Encogimiento de hombros en polea","en":"cable shrugs","eq":"cable","m":"traps","c":false},{"id":"Upright_Cable_Row","n":"Remo al mentón en polea","en":"upright cable row","eq":"cable","m":"traps","c":false},{"id":"Kettlebell_Sumo_High_Pull","n":"Tirón alto sumo con kettlebell","en":"kettlebell sumo high pull","eq":"kettlebells","m":"traps","c":false},{"id":"Upright_Row_-_With_Bands","n":"Remo al mentón con banda","en":"upright row - with bands","eq":"bands","m":"traps","c":false},{"id":"Finger_Curls","n":"Curl de dedos con barra","en":"finger curls","eq":"barbell","m":"forearms","c":false},{"id":"Palms-Down_Wrist_Curl_Over_A_Bench","n":"Curl de muñeca palmas abajo en banco","en":"palms-down wrist curl over a bench","eq":"barbell","m":"forearms","c":false},{"id":"Dumbbell_Lying_Pronation","n":"Pronación acostado con mancuerna","en":"dumbbell lying pronation","eq":"dumbbell","m":"forearms","c":false},{"id":"Dumbbell_Lying_Supination","n":"Supinación acostado con mancuerna","en":"dumbbell lying supination","eq":"dumbbell","m":"forearms","c":false},{"id":"Cable_Wrist_Curl","n":"Curl de muñeca en polea","en":"cable wrist curl","eq":"cable","m":"forearms","c":false},{"id":"Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl","n":"Curl de muñeca sentado en polea baja","en":"seated two-arm palms-up low-pulley wrist curl","eq":"cable","m":"forearms","c":false},{"id":"Bottoms-Up_Clean_From_The_Hang_Position","n":"Cargada invertida con kettlebell","en":"bottoms-up clean from the hang position","eq":"kettlebells","m":"forearms","c":false},{"id":"Farmers_Walk","n":"Caminata del granjero","en":"farmer's walk","eq":"other","m":"forearms","c":false},{"id":"Plate_Pinch","n":"Pinza de disco","en":"plate pinch","eq":"other","m":"forearms","c":false},{"id":"Isometric_Neck_Exercise_-_Front_And_Back","n":"Ejercicio isométrico de cuello (frente y atrás)","en":"isometric neck exercise - front and back","eq":"body only","m":"neck","c":false},{"id":"Isometric_Neck_Exercise_-_Sides","n":"Ejercicio isométrico de cuello (lados)","en":"isometric neck exercise - sides","eq":"body only","m":"neck","c":false},{"id":"Lying_Face_Down_Plate_Neck_Resistance","n":"Resistencia de cuello boca abajo con disco","en":"lying face down plate neck resistance","eq":"other","m":"neck","c":false},{"id":"Lying_Face_Up_Plate_Neck_Resistance","n":"Resistencia de cuello boca arriba con disco","en":"lying face up plate neck resistance","eq":"other","m":"neck","c":false},{"id":"Thigh_Abductor","n":"Máquina de abductor","en":"thigh abductor","eq":"machine","m":"abductors","c":false},{"id":"Monster_Walk","n":"Caminata lateral con banda","en":"monster walk","eq":"bands","m":"abductors","c":false},{"id":"Glute_Kickback","n":"Pateo de glúteo","en":"glute kickback","eq":"body only","m":"glutes","c":false},{"id":"Standing_Calf_Raises","n":"Elevación de talones de pie","en":"standing calf raises","eq":"machine","m":"calves","c":false},{"id":"Romanian_Deadlift","n":"Peso muerto rumano","en":"romanian deadlift","eq":"barbell","m":"hamstrings","c":false},{"id":"Smith_Machine_Squat","n":"Sentadilla en máquina Smith","en":"smith machine squat","eq":"machine","m":"quadriceps","c":false},{"id":"Barbell_Incline_Bench_Press_-_Medium_Grip","n":"Press inclinado con barra","en":"barbell incline bench press - medium grip","eq":"barbell","m":"chest","c":false},{"id":"Wide-Grip_Lat_Pulldown","n":"Jalón al pecho agarre abierto","en":"wide-grip lat pulldown","eq":"cable","m":"lats","c":false},{"id":"Seated_Dumbbell_Press","n":"Press militar sentado con mancuerna","en":"seated dumbbell press","eq":"dumbbell","m":"shoulders","c":false},{"id":"T-Bar_Row_with_Handle","n":"Remo en T con agarre","en":"t-bar row with handle","eq":"barbell","m":"middle back","c":false},{"id":"Dumbbell_Alternate_Bicep_Curl","n":"Curl de bíceps alterno con mancuerna","en":"dumbbell alternate bicep curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Adductor","n":"Aductor con rodillo","en":"adductor","eq":"foam roll","m":"adductors","c":false},{"id":"One-Arm_Dumbbell_Row","n":"Remo a un brazo con mancuerna","en":"one-arm dumbbell row","eq":"dumbbell","m":"middle back","c":false},{"id":"Leg_Extensions","n":"Extensión de rodilla (máquina)","en":"leg extensions","eq":"machine","m":"quadriceps","c":false},{"id":"Goblet_Squat","n":"Sentadilla Goblet","en":"goblet squat","eq":"kettlebells","m":"quadriceps","c":false},{"id":"Incline_Hammer_Curls","n":"Curl martillo en banco inclinado","en":"incline hammer curls","eq":"dumbbell","m":"biceps","c":false},{"id":"Face_Pull","n":"Face pull","en":"face pull","eq":"cable","m":"shoulders","c":false},{"id":"Side_Lateral_Raise","n":"Elevación lateral","en":"side lateral raise","eq":"dumbbell","m":"shoulders","c":false},{"id":"Triceps_Pushdown","n":"Extensión de tríceps en polea","en":"triceps pushdown","eq":"cable","m":"triceps","c":false},{"id":"Leg_Press","n":"Prensa de piernas","en":"leg press","eq":"machine","m":"quadriceps","c":false},{"id":"Elliptical_Trainer","n":"Elíptica","en":"elliptical trainer","eq":"machine","m":"cardio","c":true},{"id":"Walking_Treadmill","n":"Caminadora (caminar)","en":"walking, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Jogging_Treadmill","n":"Caminadora (trote suave)","en":"jogging, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Running_Treadmill","n":"Caminadora (correr)","en":"running, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Recumbent_Bike","n":"Bicicleta reclinada","en":"recumbent bike","eq":"machine","m":"cardio","c":true},{"id":"Bicycling_Stationary","n":"Bicicleta estática","en":"bicycling, stationary","eq":"machine","m":"cardio","c":true},{"id":"Stairmaster","n":"Escaladora","en":"stairmaster","eq":"machine","m":"cardio","c":true},{"id":"Rowing_Stationary","n":"Remo estático","en":"rowing, stationary","eq":"machine","m":"cardio","c":true},{"id":"Rope_Jumping","n":"Salto de cuerda","en":"rope jumping","eq":"other","m":"cardio","c":true},{"id":"Step_Mill","n":"Escaladora de step","en":"step mill","eq":"machine","m":"cardio","c":true}]`);
+const EQUIPMENT_LABEL = {
+  barbell: "Barra",
+  dumbbell: "Mancuerna",
+  machine: "Máquina",
+  cable: "Polea",
+  "body only": "Peso corporal",
+  kettlebells: "Kettlebell",
+  bands: "Bandas",
+  "medicine ball": "Balón medicinal",
+  "exercise ball": "Fitball",
+  "foam roll": "Rodillo",
+  "e-z curl bar": "Barra Z",
+  other: "Otro"
+};
+const MUSCLE_LABEL = {
+  quadriceps: "Cuádriceps",
+  shoulders: "Hombros",
+  abdominals: "Abdomen",
+  chest: "Pecho",
+  hamstrings: "Femorales",
+  triceps: "Tríceps",
+  biceps: "Bíceps",
+  lats: "Espalda",
+  "middle back": "Espalda media",
+  calves: "Pantorrillas",
+  "lower back": "Espalda baja",
+  forearms: "Antebrazos",
+  glutes: "Glúteos",
+  traps: "Trapecio",
+  adductors: "Aductores",
+  neck: "Cuello",
+  abductors: "Abductores",
+  cardio: "Cardio",
+  other: "Otro"
+};
+const SEARCH_ALIASES = {
+  sentadilla: "squat",
+  sentadillas: "squat",
+  press: "press",
+  pres: "press",
+  remo: "row",
+  jalon: "pulldown",
+  tiron: "pull",
+  extension: "extension",
+  flexion: "curl",
+  "peso muerto": "deadlift",
+  pesomuerto: "deadlift",
+  muerto: "deadlift",
+  elevacion: "raise",
+  encogimiento: "shrug",
+  aductor: "adductor",
+  abductor: "abductor",
+  pantorrilla: "calf",
+  biceps: "biceps",
+  triceps: "triceps",
+  hombro: "shoulder",
+  pecho: "chest",
+  espalda: "back",
+  gluteo: "glute",
+  abdomen: "ab",
+  abdominales: "ab",
+  cuadriceps: "quad",
+  femoral: "hamstring",
+  femorales: "hamstring",
+  mancuerna: "dumbbell",
+  barra: "barbell",
+  polea: "cable",
+  cable: "cable",
+  maquina: "machine",
+  zancada: "lunge",
+  estocada: "lunge",
+  fondos: "dip",
+  dominadas: "pull up",
+  jalones: "pulldown",
+  curl: "curl",
+  empuje: "press",
+  trapecio: "trap",
+  cuello: "neck",
+  antebrazo: "forearm",
+  caminadora: "treadmill",
+  cinta: "treadmill",
+  trotadora: "treadmill",
+  eliptica: "elliptical",
+  "elíptica": "elliptical",
+  bicicleta: "bike",
+  bici: "bike",
+  estatica: "stationary",
+  "estática": "stationary",
+  escaladora: "stairmaster",
+  spinning: "bicycling",
+  trote: "jogging",
+  correr: "running",
+  saltar: "jump",
+  cuerda: "rope",
+  remadora: "rowing"
+};
+function stripAccents(s) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function norm(s) {
+  return stripAccents(String(s || "").toLowerCase()).trim();
+}
+const STOPWORDS = new Set(["de", "con", "en", "para", "el", "la", "los", "las", "y", "del", "al", "un", "una", "peso", "pesas"]);
+function searchLibrary(query, equipmentFilter, limit) {
+  const q = norm(query);
+  let words = q.split(/\s+/).filter(w => w && !STOPWORDS.has(w));
+  let cardioOnly = equipmentFilter === "cardio";
+  if (words.includes("cardio")) {
+    cardioOnly = true;
+    words = words.filter(w => w !== "cardio");
+  }
+  const wordVariants = words.map(w => {
+    const variants = new Set([w]);
+    if (SEARCH_ALIASES[w]) variants.add(norm(SEARCH_ALIASES[w]));
+    return [...variants];
+  });
+  const results = EXERCISE_LIBRARY.filter(item => {
+    if (cardioOnly && !item.c) return false;
+    if (!cardioOnly && equipmentFilter && equipmentFilter !== "cardio" && item.eq !== equipmentFilter) return false;
+    if (!wordVariants.length) return true;
+    const name = norm(item.n);
+    const nameEn = norm(item.en || "");
+    const muscle = norm(MUSCLE_LABEL[item.m] || item.m);
+    const eqLabel = norm(EQUIPMENT_LABEL[item.eq] || item.eq);
+    return wordVariants.every(variants => variants.some(v => name.includes(v) || nameEn.includes(v) || muscle.includes(v) || eqLabel.includes(v)));
+  });
+  return {
+    total: results.length,
+    items: results.slice(0, limit)
+  };
+}
+function ex(id, name, equipment, dbId, rest, reps, extra = {}) {
+  return {
+    id,
+    name,
+    equipment,
+    dbId,
+    rest,
+    reps,
+    customImageUrl: null,
+    ...extra
+  };
+}
+const DEFAULT_ROUTINE = [{
+  id: "lunes",
+  short: "LUN",
+  label: "Lunes",
+  group: "Glúteo · Femoral",
+  color: GROUP_COLORS.glufem,
+  note: "A mayor número de repeticiones, reduce un poco la carga. Al terminar, 30 min de cardio LISS (intensidad media-baja).",
+  exercises: [ex("lun-1", "Máquina de sentadilla perfecta", "Máquina", "Smith_Machine_Squat", "1 min", [15, 15, 12, 12, 10, 8]), ex("lun-2", "Hip thrust", "Barra", "Barbell_Hip_Thrust", "2 min", [12, 12, 15, 15]), ex("lun-3", "Pateo de glúteo", "Polea/Máquina", "Glute_Kickback", "1 min", [20, 20, 15, 15]), ex("lun-4", "Peso muerto rumano", "Barra", "Romanian_Deadlift", "1 min", [12, 12, 15, 15]), ex("lun-5", "Curl femoral", "Máquina", "Lying_Leg_Curls", "1 min", [15, 15, 15, 15]), ex("lun-6", "Extensión de rodilla (drop set)", "Máquina", "Leg_Extensions", "10 seg entre placas", null, {
+    dropset: true,
+    dropsetCount: 6,
+    note: "Retira una placa en cada serie hasta completar 6."
+  }), ex("lun-7", "Cardio LISS (caminadora, elíptica o bici)", "Máquina", "Walking_Treadmill", "-", [1], {
+    type: "cardio"
+  })]
+}, {
+  id: "martes",
+  short: "MAR",
+  label: "Martes",
+  group: "Espalda · Bíceps · Hombro post.",
+  color: GROUP_COLORS.espalda,
+  note: "A mayor número de repeticiones, reduce un poco la carga. Al terminar, 30 min de cardio LISS (intensidad media-baja).",
+  exercises: [ex("mar-1", "Jalón al pecho agarre prono abierto", "Polea", "Wide-Grip_Lat_Pulldown", "1½ min", [15, 15, 12, 12]), ex("mar-2", "Jalón al pecho agarre supino cerrado", "Polea", "Close-Grip_Front_Lat_Pulldown", "1½ min", [15, 15, 12, 12]), ex("mar-3", "Remo unilateral con mancuerna", "Mancuerna", "One-Arm_Dumbbell_Row", "1½ min", [15, 15, 15, 15]), ex("mar-4", "Remo en T con polea", "Polea", "T-Bar_Row_with_Handle", "1½ min", [15, 15, 15, 15]), ex("mar-5", "Curl bíceps alterno", "Mancuerna", "Dumbbell_Alternate_Bicep_Curl", "1½ min", [12, 12, 12, 12]), ex("mar-6", "Martillo en banco inclinado", "Mancuerna", "Incline_Hammer_Curls", "1½ min", [12, 12, 12, 12]), ex("mar-7", "Face pull", "Polea", "Face_Pull", "1½ min", [15, 15, 15, 15]), ex("mar-8", "Cardio LISS (caminadora, elíptica o bici)", "Máquina", "Walking_Treadmill", "-", [1], {
+    type: "cardio"
+  })]
+}, {
+  id: "miercoles",
+  short: "MIÉ",
+  label: "Miércoles",
+  group: "Cuádriceps · Aductor · Pantorrilla",
+  color: GROUP_COLORS.cuadriceps,
+  note: "Lee con atención la descripción de las series; ante cualquier duda, consulta con tu entrenador.",
+  exercises: [ex("mie-1", "Sentadilla Hack", "Máquina", "Hack_Squat", "1½ min", [15, 15, 12, 12, 12, 12]), ex("mie-2", "Prensa de piernas", "Máquina", "Leg_Press", "1½ min", [12, 12, 15, 15]), ex("mie-3", "Extensión de rodilla", "Máquina", "Leg_Extensions", "1½ min", [15, 12, 10, 10]), ex("mie-4", "Pantorrillas", "Máquina", "Standing_Calf_Raises", "1½ min", [20, 20, 20, 20]), ex("mie-5", "Aductor", "Máquina", "Adductor", "1½ min", [15, 15, 12, 12])]
+}, {
+  id: "jueves",
+  short: "JUE",
+  label: "Jueves",
+  group: "Pecho · Tríceps · Hombro",
+  color: GROUP_COLORS.pecho,
+  note: "A mayor número de repeticiones, reduce un poco la carga. Al terminar, 30 min de cardio LISS (intensidad media-baja).",
+  exercises: [ex("jue-1", "Press plano", "Barra", "Barbell_Bench_Press_-_Medium_Grip", "1 min", [15, 15, 12, 12]), ex("jue-2", "Press inclinado", "Barra", "Barbell_Incline_Bench_Press_-_Medium_Grip", "1 min", [15, 15, 12, 12]), ex("jue-3", "Extensión de tríceps en polea", "Polea", "Triceps_Pushdown", "1 min", [15, 15, 15, 15]), ex("jue-4", "Fondos en banco o copa", "Peso corporal", "Bench_Dips", "1 min", [12, 12, 12, 12]), ex("jue-5", "Press militar sentado con mancuerna", "Mancuerna", "Seated_Dumbbell_Press", "1 min", [15, 15, 12, 12]), ex("jue-6", "Elevaciones laterales", "Mancuerna", "Side_Lateral_Raise", "1 min", [15, 15, 15, 15]), ex("jue-7", "Cardio LISS (caminadora, elíptica o bici)", "Máquina", "Walking_Treadmill", "-", [1], {
+    type: "cardio"
+  })]
+}, {
+  id: "viernes",
+  short: "VIE",
+  label: "Viernes",
+  group: "Glúteo · Femoral",
+  color: GROUP_COLORS.glufem,
+  note: "A mayor número de repeticiones, reduce un poco la carga. Al terminar, 30 min de cardio LISS (intensidad media-baja).",
+  exercises: [ex("vie-1", "Máquina de sentadilla perfecta", "Máquina", "Smith_Machine_Squat", "1 min", [15, 15, 12, 12, 10, 8]), ex("vie-2", "Hip thrust", "Barra", "Barbell_Hip_Thrust", "2 min", [12, 12, 15, 15]), ex("vie-3", "Pateo de glúteo", "Polea/Máquina", "Glute_Kickback", "1 min", [20, 20, 15, 15]), ex("vie-4", "Peso muerto rumano", "Barra", "Romanian_Deadlift", "1 min", [12, 12, 15, 15]), ex("vie-5", "Curl femoral", "Máquina", "Lying_Leg_Curls", "1 min", [15, 15, 15, 15]), ex("vie-6", "Sentadilla Goblet", "Mancuerna", "Goblet_Squat", "1 min", [15, 15, 15, 15]), ex("vie-7", "Cardio LISS (caminadora, elíptica o bici)", "Máquina", "Walking_Treadmill", "-", [1], {
+    type: "cardio"
+  })]
+}];
+
+/* ---------------------------------------------------------
+   Helpers
+--------------------------------------------------------- */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function numSets(exercise) {
+  return exercise.dropset ? exercise.dropsetCount : exercise.reps ? exercise.reps.length : 0;
+}
+function imgUrl(dbId) {
+  return EXERCISE_IMAGES.has(dbId) ? `exercise-media/${dbId}.gif` : null;
+}
+function daysAgo(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const then = new Date(y, m - 1, d);
+  const now = new Date();
+  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((a - then) / 86400000);
+  if (diff === 0) return "hoy";
+  if (diff === 1) return "ayer";
+  return `hace ${diff} días`;
+}
+function fmtDate(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "short"
+  });
+}
+function deepClone(o) {
+  return JSON.parse(JSON.stringify(o));
+}
+
+/* ---------------------------------------------------------
+   Cycling demo image
+--------------------------------------------------------- */
+function CyclingImage({
+  dbId,
+  customImageUrl,
+  size = 60,
+  imgSize = "s",
+  onZoom
+}) {
+  const [failed, setFailed] = useState(false);
+  const hasImage = !!(dbId && imgUrl(dbId));
+  const frameStyle = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover"
+  };
+  const wrap = {
+    width: size,
+    height: size,
+    borderRadius: "9999px",
+    overflow: "hidden",
+    border: `2px solid ${C.brass}`,
+    background: C.surfaceAlt,
+    flexShrink: 0,
+    position: "relative",
+    cursor: onZoom ? "zoom-in" : "default"
+  };
+  const clickProps = onZoom ? {
+    onClick: onZoom,
+    role: "button",
+    "aria-label": "Ver ejercicio en grande"
+  } : {};
+  if (customImageUrl) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: wrap,
+      ...clickProps
+    }, /*#__PURE__*/React.createElement("img", {
+      src: customImageUrl,
+      style: frameStyle,
+      onError: () => setFailed(true),
+      alt: ""
+    }));
+  }
+  if (!hasImage || failed) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: wrap,
+      className: "flex items-center justify-center",
+      ...clickProps
+    }, /*#__PURE__*/React.createElement(Dumbbell, {
+      size: size * 0.4,
+      color: C.textFaint
+    }));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: wrap,
+    ...clickProps
+  }, /*#__PURE__*/React.createElement("img", {
+    src: imgUrl(dbId),
+    style: frameStyle,
+    onError: () => setFailed(true),
+    alt: ""
+  }));
+}
+
+/* ---------------------------------------------------------
+   Static thumbnail (for list rows — no animation, lighter)
+--------------------------------------------------------- */
+function StaticThumb({
+  dbId,
+  size = 36
+}) {
+  const [failed, setFailed] = useState(false);
+  const wrap = {
+    width: size,
+    height: size,
+    borderRadius: "8px",
+    overflow: "hidden",
+    background: C.surface,
+    flexShrink: 0,
+    border: `1px solid ${C.borderSoft}`
+  };
+  const src = dbId ? imgUrl(dbId, 0, "s") : null;
+  if (failed || !src) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: wrap,
+      className: "flex items-center justify-center"
+    }, /*#__PURE__*/React.createElement(Dumbbell, {
+      size: size * 0.5,
+      color: C.textFaint
+    }));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: wrap
+  }, /*#__PURE__*/React.createElement("img", {
+    src: src,
+    style: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover"
+    },
+    onError: () => setFailed(true),
+    alt: ""
+  }));
+}
+
+/* ---------------------------------------------------------
+   Confirm modal (avoid window.confirm)
+--------------------------------------------------------- */
+function ConfirmModal({
+  title,
+  body,
+  onConfirm,
+  onCancel
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-6",
+    style: {
+      background: "rgba(0,0,0,0.6)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-sm rounded-2xl p-5",
+    style: {
+      background: C.surface,
+      border: `1px solid ${C.border}`
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold mb-2",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif"
+    }
+  }, title), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm mb-5",
+    style: {
+      color: C.textDim
+    }
+  }, body), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 justify-end"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onCancel,
+    className: "px-4 py-2 rounded-lg text-sm font-medium",
+    style: {
+      color: C.textDim,
+      background: C.surfaceAlt
+    }
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    onClick: onConfirm,
+    className: "px-4 py-2 rounded-lg text-sm font-semibold",
+    style: {
+      color: "#06231A",
+      background: C.brass
+    }
+  }, "Confirmar"))));
+}
+
+/* ---------------------------------------------------------
+   Zoom modal — enlarged view of an exercise's demo image
+--------------------------------------------------------- */
+function ZoomModal({
+  exercise,
+  onClose
+}) {
+  if (!exercise) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-6",
+    style: {
+      background: "rgba(0,0,0,0.8)"
+    },
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex flex-col items-center",
+    style: {
+      maxWidth: 340
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full flex justify-end mb-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "brand-mark w-9 h-9 rounded-2xl flex items-center justify-center",
+    style: {
+      background: C.surface
+    }
+  }, /*#__PURE__*/React.createElement(X, {
+    size: 18,
+    color: C.text
+  }))), /*#__PURE__*/React.createElement(CyclingImage, {
+    dbId: exercise.dbId,
+    customImageUrl: exercise.customImageUrl,
+    size: 280,
+    imgSize: "l"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-center font-semibold",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif",
+      fontSize: "17px"
+    }
+  }, exercise.name), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-1",
+    style: {
+      color: C.textFaint
+    }
+  }, "Toca fuera de la imagen para cerrar")));
+}
+
+/* ---------------------------------------------------------
+   Exercise picker — search & select from the built-in library
+   (736 exercises, each with its own GIF already loaded — no
+   links to paste)
+--------------------------------------------------------- */
+function ExercisePicker({
+  dayColor,
+  onAdd,
+  onCancel
+}) {
+  const [query, setQuery] = useState("");
+  const [eqFilter, setEqFilter] = useState("");
+  const [picked, setPicked] = useState(null);
+  const [name, setName] = useState("");
+  const [rest, setRest] = useState("1 min");
+  const [repsText, setRepsText] = useState("15,15,12,12");
+  const {
+    total,
+    items
+  } = useMemo(() => searchLibrary(query, eqFilter, 40), [query, eqFilter]);
+  const equipmentChips = ["", "cardio", "barbell", "dumbbell", "machine", "cable", "body only"];
+  const chipLabel = eq => eq === "cardio" ? "Cardio" : eq ? EQUIPMENT_LABEL[eq] : "Todos";
+  const pick = item => {
+    setPicked(item);
+    setName(item.n);
+  };
+  const submit = () => {
+    if (!picked || !name.trim()) return;
+    if (picked.c) {
+      onAdd({
+        id: `custom-${Date.now()}`,
+        name: name.trim(),
+        equipment: "Máquina",
+        dbId: picked.id,
+        customImageUrl: null,
+        rest: "-",
+        reps: [1],
+        type: "cardio"
+      });
+      return;
+    }
+    const reps = repsText.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    onAdd({
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      equipment: EQUIPMENT_LABEL[picked.eq] || "Máquina",
+      dbId: picked.id,
+      customImageUrl: null,
+      rest,
+      reps: reps.length ? reps : [12, 12, 12]
+    });
+  };
+
+  // Step 1: search & pick from the library
+  if (!picked) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "picker-card rounded-2xl p-4 mb-3",
+      style: {
+        background: C.surfaceAlt,
+        border: `1px dashed ${dayColor}`
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between mb-3"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-xs font-semibold uppercase tracking-wide",
+      style: {
+        color: dayColor
+      }
+    }, "Elegir ejercicio"), /*#__PURE__*/React.createElement("button", {
+      onClick: onCancel
+    }, /*#__PURE__*/React.createElement(X, {
+      size: 16,
+      color: C.textFaint
+    }))), /*#__PURE__*/React.createElement("div", {
+      className: "relative mb-2"
+    }, /*#__PURE__*/React.createElement(Search, {
+      size: 14,
+      color: C.textFaint,
+      style: {
+        position: "absolute",
+        left: 10,
+        top: 11
+      }
+    }), /*#__PURE__*/React.createElement("input", {
+      value: query,
+      onChange: e => setQuery(e.target.value),
+      placeholder: "Buscar por nombre o músculo…",
+      autoFocus: true,
+      className: "w-full rounded-lg pl-8 pr-3 py-2 text-sm outline-none",
+      style: {
+        background: C.surface,
+        color: C.text,
+        border: `1px solid ${C.border}`
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-1.5 overflow-x-auto pb-2"
+    }, equipmentChips.map(eq => /*#__PURE__*/React.createElement("button", {
+      key: eq || "todos",
+      onClick: () => setEqFilter(eq),
+      className: "flex-shrink-0 rounded-full px-2.5 py-1",
+      style: {
+        fontSize: "11px",
+        background: eqFilter === eq ? dayColor : C.surface,
+        color: eqFilter === eq ? "#06231A" : C.textDim,
+        border: `1px solid ${eqFilter === eq ? dayColor : C.borderSoft}`
+      }
+    }, chipLabel(eq)))), /*#__PURE__*/React.createElement("div", {
+      className: "overflow-y-auto rounded-lg mt-1",
+      style: {
+        border: `1px solid ${C.borderSoft}`,
+        maxHeight: 260
+      }
+    }, items.length === 0 && /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-center py-6",
+      style: {
+        color: C.textFaint
+      }
+    }, "Sin resultados. Prueba con otra palabra."), items.map((item, idx) => /*#__PURE__*/React.createElement("button", {
+      key: item.id,
+      onClick: () => pick(item),
+      className: "w-full flex items-center gap-2.5 px-2.5 py-2 text-left",
+      style: {
+        background: idx % 2 ? C.surface : C.surfaceAlt,
+        borderBottom: `1px solid ${C.borderSoft}`
+      }
+    }, /*#__PURE__*/React.createElement(StaticThumb, {
+      dbId: item.id,
+      size: 36
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "min-w-0 flex-1"
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-xs font-medium truncate",
+      style: {
+        color: C.text
+      }
+    }, item.n), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: C.textFaint,
+        fontSize: "10px"
+      }
+    }, EQUIPMENT_LABEL[item.eq] || item.eq, " · ", MUSCLE_LABEL[item.m] || item.m))))), total > items.length && /*#__PURE__*/React.createElement("p", {
+      className: "text-xs mt-2",
+      style: {
+        color: C.textFaint
+      }
+    }, "Mostrando ", items.length, " de ", total, " · sigue escribiendo para afinar."));
+  }
+
+  // Step 2: confirm & configure for this day
+  return /*#__PURE__*/React.createElement("div", {
+    className: "picker-card rounded-2xl p-4 mb-3",
+    style: {
+      background: C.surfaceAlt,
+      border: `1px dashed ${dayColor}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPicked(null),
+    className: "p-1 rounded-lg",
+    style: {
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement(ArrowLeft, {
+    size: 16
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-semibold uppercase tracking-wide",
+    style: {
+      color: dayColor
+    }
+  }, "Configurar ejercicio")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 mb-3"
+  }, /*#__PURE__*/React.createElement(CyclingImage, {
+    dbId: picked.id,
+    size: 54
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs",
+    style: {
+      color: C.textFaint
+    }
+  }, EQUIPMENT_LABEL[picked.eq], " · ", MUSCLE_LABEL[picked.m])), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: name,
+    onChange: e => setName(e.target.value),
+    placeholder: "Nombre del ejercicio",
+    className: "rounded-lg px-3 py-2 text-sm outline-none",
+    style: {
+      background: C.surface,
+      color: C.text,
+      border: `1px solid ${C.border}`
+    }
+  }), picked.c ? /*#__PURE__*/React.createElement("p", {
+    className: "text-xs",
+    style: {
+      color: C.textFaint
+    }
+  }, "Se registrará por minutos en lugar de peso — ideal para cardio LISS.") : /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: rest,
+    onChange: e => setRest(e.target.value),
+    placeholder: "Descanso, ej: 1 min",
+    className: "flex-1 rounded-lg px-2 py-2 text-sm outline-none",
+    style: {
+      background: C.surface,
+      color: C.text,
+      border: `1px solid ${C.border}`
+    }
+  }), /*#__PURE__*/React.createElement("input", {
+    value: repsText,
+    onChange: e => setRepsText(e.target.value),
+    placeholder: "Reps: 15,15,12,12",
+    className: "flex-1 rounded-lg px-2 py-2 text-sm outline-none",
+    style: {
+      background: C.surface,
+      color: C.text,
+      border: `1px solid ${C.border}`
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 justify-end mt-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onCancel,
+    className: "px-3 py-1.5 rounded-lg text-sm",
+    style: {
+      color: C.textDim
+    }
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    onClick: submit,
+    className: "px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1",
+    style: {
+      background: dayColor,
+      color: "#06231A"
+    }
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 14
+  }), " Agregar a la rutina"))));
+}
+
+/* ---------------------------------------------------------
+   Exercise card
+--------------------------------------------------------- */
+function ExerciseCard({
+  exercise,
+  dayColor,
+  editMode,
+  todayValues,
+  onChangeToday,
+  onUpdate,
+  onRemove,
+  onAddSet,
+  onRemoveSet,
+  log,
+  onZoom
+}) {
+  const [showHistory, setShowHistory] = useState(false);
+  const n = numSets(exercise);
+  const isCardio = exercise.type === "cardio";
+  const unit = isCardio ? "min" : "lb";
+  const lastEntry = log && log.length ? log[log.length - 1] : null;
+  const recent = log ? log.slice(-5).reverse() : [];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "exercise-card rounded-2xl p-4 mb-3",
+    style: {
+      background: C.surface,
+      border: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-3 items-start"
+  }, /*#__PURE__*/React.createElement(CyclingImage, {
+    dbId: exercise.dbId,
+    customImageUrl: exercise.customImageUrl,
+    size: 60,
+    onZoom: () => onZoom({
+      dbId: exercise.dbId,
+      customImageUrl: exercise.customImageUrl,
+      name: exercise.name
+    })
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
+  }, editMode ? /*#__PURE__*/React.createElement("input", {
+    value: exercise.name,
+    onChange: e => onUpdate({
+      name: e.target.value
+    }),
+    className: "w-full rounded-lg px-2 py-1 text-sm font-semibold mb-1 outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: C.text,
+      border: `1px solid ${C.border}`,
+      fontFamily: "Space Grotesk, sans-serif"
+    }
+  }) : /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold leading-tight mb-1",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif",
+      fontSize: "15px"
+    }
+  }, exercise.name), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-1.5"
+  }, editMode ? /*#__PURE__*/React.createElement("select", {
+    value: exercise.equipment,
+    onChange: e => onUpdate({
+      equipment: e.target.value
+    }),
+    className: "text-xs rounded-full px-2 py-0.5 outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: dayColor,
+      border: `1px solid ${dayColor}`
+    }
+  }, EQUIPMENT_OPTIONS.map(o => /*#__PURE__*/React.createElement("option", {
+    key: o,
+    value: o
+  }, o))) : /*#__PURE__*/React.createElement("span", {
+    className: "text-xs rounded-full px-2 py-0.5",
+    style: {
+      color: dayColor,
+      border: `1px solid ${dayColor}`
+    }
+  }, exercise.equipment), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs flex items-center gap-1",
+    style: {
+      color: C.textFaint
+    }
+  }, /*#__PURE__*/React.createElement(Clock, {
+    size: 11
+  }), editMode ? /*#__PURE__*/React.createElement("input", {
+    value: exercise.rest,
+    onChange: e => onUpdate({
+      rest: e.target.value
+    }),
+    className: "w-14 rounded px-1 outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: C.textDim,
+      border: `1px solid ${C.border}`
+    }
+  }) : isCardio ? "LISS" : exercise.rest))), editMode && /*#__PURE__*/React.createElement("button", {
+    onClick: onRemove,
+    className: "p-1.5 rounded-lg flex-shrink-0",
+    style: {
+      color: C.danger
+    }
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 16
+  }))), exercise.dropset && exercise.note && /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-2 italic",
+    style: {
+      color: C.textFaint
+    }
+  }, exercise.note), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 mt-3 overflow-x-auto pb-1"
+  }, Array.from({
+    length: n
+  }).map((_, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "flex flex-col items-center flex-shrink-0",
+    style: {
+      width: 54
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mb-1",
+    style: {
+      color: C.textFaint,
+      fontSize: "10px"
+    }
+  }, isCardio ? "min" : exercise.dropset ? `S${i + 1}` : /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: exercise.reps[i],
+    onChange: e => {
+      const reps = [...exercise.reps];
+      reps[i] = parseInt(e.target.value, 10) || 0;
+      onUpdate({
+        reps
+      });
+    },
+    className: "w-9 text-center rounded outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: C.textDim,
+      border: `1px solid ${C.border}`
+    }
+  })), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    inputMode: "decimal",
+    step: isCardio ? "1" : "2.5",
+    min: "0",
+    placeholder: lastEntry ? String(lastEntry.weights[i] ?? "") : unit,
+    value: todayValues[i] ?? "",
+    onChange: e => onChangeToday(i, e.target.value),
+    className: "w-full text-center rounded-lg py-1.5 text-sm font-semibold outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: C.brassLight,
+      border: `1px solid ${C.border}`,
+      fontFamily: "JetBrains Mono, monospace"
+    }
+  }))), editMode && !isCardio && /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-1 justify-center flex-shrink-0"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onAddSet,
+    className: "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+    style: {
+      background: C.surfaceAlt,
+      color: dayColor
+    }
+  }, "+"), n > 1 && /*#__PURE__*/React.createElement("button", {
+    onClick: onRemoveSet,
+    className: "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+    style: {
+      background: C.surfaceAlt,
+      color: C.textFaint
+    }
+  }, "−"))), lastEntry && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHistory(s => !s),
+    className: "flex items-center gap-1 text-xs",
+    style: {
+      color: C.textFaint
+    }
+  }, /*#__PURE__*/React.createElement(HistoryIcon, {
+    size: 11
+  }), "Último: ", lastEntry.weights.filter(w => w !== null && w !== undefined).join("-"), " ", unit, " · ", daysAgo(lastEntry.date), showHistory ? /*#__PURE__*/React.createElement(ChevronUp, {
+    size: 12
+  }) : /*#__PURE__*/React.createElement(ChevronDown, {
+    size: 12
+  })), showHistory && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 rounded-lg overflow-hidden",
+    style: {
+      border: `1px solid ${C.borderSoft}`
+    }
+  }, recent.map((e, idx) => /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "flex justify-between px-3 py-1.5 text-xs",
+    style: {
+      background: idx % 2 ? C.surface : C.surfaceAlt,
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement("span", null, fmtDate(e.date)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "JetBrains Mono, monospace"
+    }
+  }, e.weights.filter(w => w !== null && w !== undefined).join("-"), " ", unit))))));
+}
+
+/* ---------------------------------------------------------
+   Main App
+--------------------------------------------------------- */
+/* ---------------------------------------------------------
+   Progress / stats view
+--------------------------------------------------------- */
+function StatsView({
+  routine,
+  logs,
+  onBack
+}) {
+  const items = useMemo(() => {
+    const list = [];
+    routine.forEach(day => {
+      day.exercises.forEach(ex => {
+        const log = logs[ex.id];
+        if (!log || !log.length) return;
+        const isCardio = ex.type === "cardio";
+        const points = log.map(e => {
+          const vals = (e.weights || []).filter(w => w !== null && w !== undefined && !isNaN(w));
+          if (!vals.length) return null;
+          const value = isCardio ? vals[0] : Math.max(...vals);
+          return {
+            date: e.date,
+            label: fmtDate(e.date),
+            value
+          };
+        }).filter(Boolean);
+        if (!points.length) return;
+        const first = points[0].value;
+        const last = points[points.length - 1].value;
+        list.push({
+          id: ex.id,
+          name: ex.name,
+          dayColor: day.color,
+          unit: isCardio ? "min" : "lb",
+          points,
+          last,
+          delta: points.length > 1 ? +(last - first).toFixed(1) : null,
+          sessions: points.length
+        });
+      });
+    });
+    list.sort((a, b) => b.sessions - a.sessions);
+    return list;
+  }, [routine, logs]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "px-4 pt-4 pb-10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 mb-4"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onBack,
+    className: "p-1.5 rounded-lg",
+    style: {
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement(ArrowLeft, {
+    size: 18
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif",
+      fontSize: "17px"
+    }
+  }, "Tu progreso")), items.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "stats-empty text-center py-12 px-5 rounded-2xl max-w-lg mx-auto mt-10"
+  }, /*#__PURE__*/React.createElement(TrendingUp, {
+    size: 32,
+    color: C.textFaint,
+    style: {
+      margin: "0 auto 12px"
+    }
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm",
+    style: {
+      color: C.textFaint
+    }
+  }, "Aún no hay datos suficientes.", /*#__PURE__*/React.createElement("br", null), "Registra pesos en tus entrenamientos para ver tu evolución aquí.")) : items.map(it => /*#__PURE__*/React.createElement("div", {
+    key: it.id,
+    className: "stats-card rounded-2xl p-4 mb-3",
+    style: {
+      background: C.surface,
+      border: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-1 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "rounded-full flex-shrink-0",
+    style: {
+      background: it.dayColor,
+      width: 8,
+      height: 8
+    }
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm font-medium truncate",
+    style: {
+      color: C.text
+    }
+  }, it.name)), it.delta !== null && /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold flex-shrink-0",
+    style: {
+      color: it.delta > 0 ? "#47F2D0" : C.textFaint
+    }
+  }, it.delta > 0 ? "▲" : it.delta < 0 ? "▼" : "–", " ", Math.abs(it.delta), " ", it.unit)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-2",
+    style: {
+      color: C.textFaint
+    }
+  }, it.sessions, " ", it.sessions === 1 ? "sesión" : "sesiones", " · último: ", it.last, " ", it.unit), it.points.length > 1 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 60
+    }
+  }, /*#__PURE__*/React.createElement(MiniLineChart, {
+    points: it.points,
+    color: it.dayColor,
+    height: 60
+  })) : /*#__PURE__*/React.createElement("p", {
+    className: "text-xs",
+    style: {
+      color: C.textFaint
+    }
+  }, "Registra otra sesión para ver tu curva de progreso."))));
+}
+
+/* ---------------------------------------------------------
+   Local, per-profile storage (no server — lives in this browser)
+--------------------------------------------------------- */
+const ACTIVE_PROFILE_KEY = "rutina_activeProfile";
+function loadActiveProfile() {
+  try {
+    return window.localStorage.getItem(ACTIVE_PROFILE_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+function setActiveProfileStorage(name) {
+  try {
+    window.localStorage.setItem(ACTIVE_PROFILE_KEY, name);
+    return window.localStorage.getItem(ACTIVE_PROFILE_KEY) === name;
+  } catch (e) {
+    return false;
+  }
+}
+function clearActiveProfileStorage() {
+  try {
+    window.localStorage.removeItem(ACTIVE_PROFILE_KEY);
+  } catch (e) {}
+}
+function profileKey(profile, key) {
+  return `rutina_${profile}_${key}`;
+}
+const SUPABASE_CONFIG = window.MEMOSET_SUPABASE_CONFIG || {};
+const SUPABASE_READY = Boolean(window.supabase && /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_CONFIG.url || "") && SUPABASE_CONFIG.anonKey && !String(SUPABASE_CONFIG.anonKey).includes("TU_CLAVE"));
+const supabaseClient = SUPABASE_READY ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+}) : null;
+const emptyRoutine = () => DEFAULT_ROUTINE.map(day => ({ ...day, exercises: [] }));
+async function readCloudSnapshot(userId) {
+  const { data, error } = await supabaseClient.from("memoset_user_data").select("routine,logs").eq("user_id", userId).maybeSingle();
+  if (error) throw error;
+  if (data) return { routine: Array.isArray(data.routine) ? data.routine : emptyRoutine(), logs: data.logs || {} };
+  const initial = { user_id: userId, routine: emptyRoutine(), logs: {} };
+  const { error: insertError } = await supabaseClient.from("memoset_user_data").insert(initial);
+  if (insertError) throw insertError;
+  return { routine: initial.routine, logs: initial.logs };
+}
+async function writeCloudSnapshot(userId, routine, logs) {
+  const { error } = await supabaseClient.from("memoset_user_data").upsert({ user_id: userId, routine, logs, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  if (error) throw error;
+}
+function friendlyAuthError(error) {
+  const raw = String(error?.message || "");
+  const text = raw.toLowerCase();
+  if (text.includes("invalid login credentials")) return "El correo o la contraseña no son correctos.";
+  if (text.includes("email not confirmed") || text.includes("email_not_confirmed")) return "Confirma tu correo desde el enlace que te enviamos antes de iniciar sesión.";
+  if (text.includes("user already registered") || text.includes("already registered")) return "Ya existe una cuenta con ese correo. Prueba iniciar sesión.";
+  if (text.includes("password should be at least") || text.includes("weak_password")) return "La contraseña no cumple los requisitos de seguridad.";
+  if (text.includes("failed to fetch") || text.includes("network")) return "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.";
+  if (text.includes("rate limit") || text.includes("too many requests")) return "Se hicieron demasiados intentos. Espera un momento y vuelve a probar.";
+  return raw || "No se pudo completar la solicitud. Inténtalo de nuevo.";
+}
+function AuthGate({ knownProfiles, storageOk, onChooseLocal, onSignIn, onSignUp, onResetPassword, cloudConfigured }) {
+  const [mode, setMode] = React.useState("signin");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const submit = async event => {
+    event.preventDefault();
+    setMessage("");
+    if (!cloudConfigured) { setMessage("El acceso por correo está listo en la app, pero falta conectar el proyecto de cuentas. Los perfiles locales siguen disponibles."); return; }
+    setBusy(true);
+    try {
+      const result = mode === "signup" ? await onSignUp(email.trim(), password) : await onSignIn(email.trim(), password);
+      setMessage(result || "");
+    } catch (error) {
+      setMessage(friendlyAuthError(error));
+    } finally { setBusy(false); }
+  };
+  const fieldStyle = { background: C.surface, color: C.text, border: `1px solid ${C.border}`, width: "100%", boxSizing: "border-box" };
+  return React.createElement("div", { className: "login-screen min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "DM Sans, sans-serif" } },
+    React.createElement("style", null, `@import url('${FONT_LINK}');`),
+    React.createElement("div", { className: "w-full", style: { maxWidth: 420 } },
+      React.createElement("div", { className: "flex flex-col items-center mb-5" },
+        React.createElement("div", { className: "brand-mark login-mark w-14 h-14 rounded-2xl flex items-center justify-center mb-3" }, React.createElement("img", { src: "MemoSet.png", alt: "Logo Memo Set", className: "brand-logo" })),
+        React.createElement("p", { className: "brand-lockup font-semibold", style: { color: C.text, fontFamily: "Space Grotesk, sans-serif", fontSize: 30 } }, React.createElement(React.Fragment, null, "Memo ", React.createElement("span", { style: { color: "#3BE98F" } }, "Set"))),
+        React.createElement("p", { className: "brand-tagline text-sm text-center mt-1" }, "Remember where you left off.")),
+      !storageOk && React.createElement("p", { className: "text-xs mb-3 text-center", style: { color: C.danger } }, "Este navegador podría no conservar datos locales."),
+      React.createElement("section", { className: "rounded-2xl p-4 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
+        React.createElement("div", { className: "flex gap-2 mb-4" },
+          React.createElement("button", { type: "button", onClick: () => { setMode("signin"); setMessage(""); }, className: "flex-1 rounded-lg py-2 text-sm font-semibold", style: { background: mode === "signin" ? C.surfaceAlt : "transparent", color: mode === "signin" ? C.brassLight : C.textFaint, border: `1px solid ${C.borderSoft}` } }, "Iniciar sesión"),
+          React.createElement("button", { type: "button", onClick: () => { setMode("signup"); setMessage(""); }, className: "flex-1 rounded-lg py-2 text-sm font-semibold", style: { background: mode === "signup" ? C.surfaceAlt : "transparent", color: mode === "signup" ? C.brassLight : C.textFaint, border: `1px solid ${C.borderSoft}` } }, "Crear cuenta")),
+        React.createElement("form", { onSubmit: submit, className: "space-y-3" },
+          React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Correo electrónico", React.createElement("input", { type: "email", autoComplete: "email", required: true, value: email, onChange: e => setEmail(e.target.value), placeholder: "tu@correo.com", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
+          React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Contraseña", React.createElement("input", { type: "password", autoComplete: mode === "signup" ? "new-password" : "current-password", required: true, minLength: mode === "signup" ? 8 : undefined, value: password, onChange: e => setPassword(e.target.value), placeholder: "Al menos 8 caracteres", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
+          React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, busy ? "Un momento…" : mode === "signup" ? "Crear cuenta y empezar" : "Entrar")),
+        mode === "signin" && React.createElement("button", { type: "button", onClick: async () => { if (!cloudConfigured) { setMessage("La recuperación por correo estará disponible cuando conectemos el servicio de cuentas."); return; } if (!email.trim()) { setMessage("Escribe tu correo y te enviaremos el enlace para restablecer la contraseña."); return; } try { const result = await onResetPassword(email.trim()); setMessage(result || "Si existe una cuenta con ese correo, recibirás instrucciones."); } catch (e) { setMessage(friendlyAuthError(e)); } }, className: "text-xs mt-3 underline", style: { color: C.textFaint } }, "Olvidé mi contraseña"),
+        message && React.createElement("p", { role: "status", className: "text-xs mt-3 leading-relaxed", style: { color: message.toLowerCase().includes("no se pudo") || message.toLowerCase().includes("inválid") ? C.danger : C.brassLight } }, message),
+        !cloudConfigured && React.createElement("p", { className: "text-xs mt-3 leading-relaxed", style: { color: C.textFaint } }, "Para activar cuentas y sincronización entre dispositivos falta conectar el servicio seguro de Memo Set.")),
+      React.createElement("div", { className: "text-center" },
+        React.createElement("p", { className: "text-xs mb-3", style: { color: C.textFaint } }, "¿Prefieres usar este dispositivo sin cuenta?"),
+        knownProfiles.length > 0 && React.createElement("div", { className: "flex flex-wrap gap-2 justify-center mb-3" }, knownProfiles.map(profileName => React.createElement("button", { key: profileName, type: "button", onClick: () => onChooseLocal(profileName), className: "rounded-full px-3 py-2 text-sm", style: { background: C.surface, border: `1px solid ${C.borderSoft}`, color: C.text } }, profileName))),
+        React.createElement("div", { className: "flex gap-2" }, React.createElement("input", { value: name, onChange: e => setName(e.target.value), onKeyDown: e => { if (e.key === "Enter") { e.preventDefault(); onChooseLocal(name); } }, placeholder: "Tu nombre o apodo", className: "flex-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle }), React.createElement("button", { type: "button", onClick: () => onChooseLocal(name), className: "rounded-lg px-4 py-2.5 text-sm font-semibold", style: { background: C.surfaceAlt, color: C.text } }, "Continuar")),
+        React.createElement("p", { className: "text-xs mt-3 leading-relaxed", style: { color: C.textFaint } }, "El perfil local permanece solo en este navegador y no se sincroniza."))));
+}
+function PasswordRecoveryGate({ onUpdatePassword, onCancel }) {
+  const [password, setPassword] = React.useState("");
+  const [confirmation, setConfirmation] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const fieldStyle = { background: C.surface, color: C.text, border: `1px solid ${C.border}`, width: "100%", boxSizing: "border-box" };
+  const submit = async event => {
+    event.preventDefault(); setMessage("");
+    if (password.length < 8) { setMessage("Usa al menos 8 caracteres."); return; }
+    if (password !== confirmation) { setMessage("Las contraseñas no coinciden."); return; }
+    setBusy(true);
+    try { await onUpdatePassword(password); setMessage("Contraseña actualizada. Abriendo tu cuenta…"); }
+    catch (error) { setMessage(friendlyAuthError(error)); }
+    finally { setBusy(false); }
+  };
+  return React.createElement("div", { className: "min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "DM Sans, sans-serif" } },
+    React.createElement("section", { className: "w-full rounded-2xl p-5", style: { maxWidth: 420, background: C.surface, border: `1px solid ${C.borderSoft}` } },
+      React.createElement("div", { className: "flex items-center gap-3 mb-4" }, React.createElement("img", { src: "MemoSet.png", alt: "", className: "brand-logo w-12 h-12 rounded-xl" }), React.createElement("div", null, React.createElement("h1", { className: "text-xl font-semibold", style: { color: C.text } }, "Nueva contraseña"), React.createElement("p", { className: "text-xs", style: { color: C.textFaint } }, "Elige una clave segura para Memo Set."))),
+      React.createElement("form", { onSubmit: submit, className: "space-y-3" },
+        React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Nueva contraseña", React.createElement("input", { type: "password", autoComplete: "new-password", minLength: 8, required: true, value: password, onChange: e => setPassword(e.target.value), placeholder: "Al menos 8 caracteres", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
+        React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Repite la contraseña", React.createElement("input", { type: "password", autoComplete: "new-password", minLength: 8, required: true, value: confirmation, onChange: e => setConfirmation(e.target.value), placeholder: "Confirma tu nueva contraseña", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
+        React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, busy ? "Guardando…" : "Guardar contraseña")),
+      message && React.createElement("p", { role: "status", className: "text-xs mt-3", style: { color: C.brassLight } }, message),
+      React.createElement("button", { type: "button", onClick: onCancel, className: "text-xs underline mt-4", style: { color: C.textFaint } }, "Cancelar y cerrar sesión")));
+}
+const CloudCache = {
+  get(userId, key) {
+    try { const raw = localStorage.getItem(`memoset_cloud_${userId}_${key}`); return raw === null ? null : { value: raw }; }
+    catch (error) { return null; }
+  },
+  set(userId, key, value) {
+    try { localStorage.setItem(`memoset_cloud_${userId}_${key}`, value); return true; }
+    catch (error) { return false; }
+  }
+};
+const LocalStore = {
+  get(profile, key) {
+    try {
+      const raw = window.localStorage.getItem(profileKey(profile, key));
+      return raw === null ? null : {
+        value: raw
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+  set(profile, key, value) {
+    try {
+      window.localStorage.setItem(profileKey(profile, key), value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+function listKnownProfiles() {
+  const names = new Set();
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      const m = k && k.match(/^rutina_(.+)_routine$/);
+      if (m) names.add(m[1]);
+    }
+  } catch (e) {}
+  return Array.from(names);
+}
+function storageSelfTest() {
+  try {
+    const testKey = "rutina_storage_test";
+    window.localStorage.setItem(testKey, "1");
+    const ok = window.localStorage.getItem(testKey) === "1";
+    window.localStorage.removeItem(testKey);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+function WorkoutApp() {
+  const [profile, setProfile] = useState(() => loadActiveProfile());
+  const [cloudUserId, setCloudUserId] = useState("");
+  const [cloudSession, setCloudSession] = useState(null);
+  const [authChecked, setAuthChecked] = useState(!SUPABASE_READY);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const [showQuickRoutine, setShowQuickRoutine] = useState(false);
+  const [quickRoutineDays, setQuickRoutineDays] = useState(3);
+  const [nameInput, setNameInput] = useState("");
+  const [knownProfiles, setKnownProfiles] = useState(() => listKnownProfiles());
+  const [routine, setRoutine] = useState(deepClone(DEFAULT_ROUTINE));
+  const [logs, setLogs] = useState({});
+  const [activeDay, setActiveDay] = useState("lunes");
+  const [editMode, setEditMode] = useState(false);
+  const [todayInputs, setTodayInputs] = useState({});
+  const [logDate, setLogDate] = useState(todayStr());
+  const [zoomedExercise, setZoomedExercise] = useState(null);
+  const [ready, setReady] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [storageOk, setStorageOk] = useState(true);
+  const logsSaveTimer = useRef(null);
+  const routineSaveTimer = useRef(null);
+  const suppressNextAutosave = useRef(true);
+  const skipFirstRoutineSave = useRef(true);
+  const importInputRef = useRef(null);
+  const latestRef = useRef({});
+  latestRef.current = { profile, cloudUserId, ready, routine, logs, todayInputs, logDate };
+
+  useEffect(() => {
+    setStorageOk(storageSelfTest());
+  }, []);
+  useEffect(() => {
+    if (!supabaseClient) { setAuthChecked(true); return; }
+    let alive = true;
+    const applySession = session => {
+      if (session) {
+        setCloudSession(session);
+        setCloudUserId(session.user.id);
+        setProfile(session.user.email || "Cuenta Memo Set");
+        setReady(false);
+      }
+      setAuthChecked(true);
+    };
+    supabaseClient.auth.getSession().then(({ data }) => {
+      if (alive) applySession(data?.session || null);
+    }).catch(() => { if (alive) setAuthChecked(true); });
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (!alive) return;
+      if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
+      if (session) applySession(session);
+      else if (event === "INITIAL_SESSION") setAuthChecked(true);
+    });
+    return () => { alive = false; subscription.unsubscribe(); };
+  }, []);
+
+  // Flush any pending changes immediately if the tab is hidden/closed —
+  // covers the case where the app is closed before the debounce timer fires
+  useEffect(() => {
+    const flush = () => {
+      const { profile: p, cloudUserId: userId, ready: r, routine: rt, logs: lg, todayInputs: ti, logDate: ld } = latestRef.current;
+      if (!p || !r) return;
+      const nextLogs = { ...lg };
+      rt.forEach((day) => {
+        day.exercises.forEach((exr) => {
+          const vals = ti[exr.id] || [];
+          const weights = vals.map((v) => (v === "" || v === undefined ? null : parseFloat(v)));
+          if (weights.some((w) => w !== null && !isNaN(w))) {
+            const existing = nextLogs[exr.id] ? [...nextLogs[exr.id]] : [];
+            const idx = existing.findIndex((e) => e.date === ld);
+            if (idx >= 0) existing[idx] = { date: ld, weights };
+            else existing.push({ date: ld, weights });
+            existing.sort((a, b) => a.date.localeCompare(b.date));
+            nextLogs[exr.id] = existing.slice(-30);
+          }
+        });
+      });
+      if (userId && supabaseClient) {
+        CloudCache.set(userId, "logs", JSON.stringify(nextLogs));
+        CloudCache.set(userId, "routine", JSON.stringify(rt));
+        writeCloudSnapshot(userId, rt, nextLogs).catch(() => {});
+      } else {
+        LocalStore.set(p, "logs", JSON.stringify(nextLogs));
+        LocalStore.set(p, "routine", JSON.stringify(rt));
+      }
+    };
+    const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", flush);
+    };
+  }, []);
+
+  // Las cuentas por correo leen su fila remota privada; los perfiles locales siguen usando localStorage.
+  useEffect(() => {
+    if (!profile) return;
+    let cancelled = false;
+    const load = async () => {
+      setReady(false);
+      if (cloudUserId && supabaseClient) {
+        try {
+          const snapshot = await readCloudSnapshot(cloudUserId);
+          if (cancelled) return;
+          const normalized = (snapshot.routine || emptyRoutine()).map(day => {
+            const currentBrandColor = DEFAULT_ROUTINE.find(defaultDay => defaultDay.id === day.id)?.color;
+            return { ...day, color: currentBrandColor || day.color || C.brass, exercises: Array.isArray(day.exercises) ? day.exercises : [] };
+          });
+          setRoutine(normalized);
+          setLogs(snapshot.logs || {});
+          setReady(true);
+        } catch (error) {
+          if (!cancelled) {
+            let cachedRoutine = null, cachedLogs = {};
+            try { const r = CloudCache.get(cloudUserId, "routine"); if (r?.value) cachedRoutine = JSON.parse(r.value); } catch (e) {}
+            try { const l = CloudCache.get(cloudUserId, "logs"); if (l?.value) cachedLogs = JSON.parse(l.value); } catch (e) {}
+            setRoutine(cachedRoutine || emptyRoutine());
+            setLogs(cachedLogs);
+            setReady(true);
+            setToast("Sin conexión: mostramos la copia local. La sincronización se reintentará al guardar.");
+            setTimeout(() => setToast(null), 3800);
+          }
+        }
+        return;
+      }
+      let loadedRoutine = null;
+      let loadedLogs = {};
+      try { const r = LocalStore.get(profile, "routine"); if (r?.value) loadedRoutine = JSON.parse(r.value); } catch (e) {}
+      try { const l = LocalStore.get(profile, "logs"); if (l?.value) loadedLogs = JSON.parse(l.value); } catch (e) {}
+      const finalRoutine = (loadedRoutine || emptyRoutine()).map(day => {
+        const currentBrandColor = DEFAULT_ROUTINE.find(defaultDay => defaultDay.id === day.id)?.color;
+        return { ...day, color: currentBrandColor || day.color || C.brass };
+      });
+      if (cancelled) return;
+      setRoutine(finalRoutine);
+      setLogs(loadedLogs);
+      if (!loadedRoutine) LocalStore.set(profile, "routine", JSON.stringify(finalRoutine));
+      setReady(true);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [profile, cloudUserId]);
+
+  // Prefill inputs for the selected date whenever it changes (or data becomes ready)
+  useEffect(() => {
+    if (!ready) return;
+    const inputs = {};
+    routine.forEach(day => {
+      day.exercises.forEach(exr => {
+        const log = logs[exr.id];
+        const n = numSets(exr);
+        const entry = log && log.find(e => e.date === logDate);
+        if (entry) {
+          inputs[exr.id] = Array.from({
+            length: n
+          }, (_, i) => entry.weights[i] !== null && entry.weights[i] !== undefined ? String(entry.weights[i]) : "");
+        } else {
+          inputs[exr.id] = Array.from({
+            length: n
+          }, () => "");
+        }
+      });
+    });
+    suppressNextAutosave.current = true;
+    setTodayInputs(inputs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, logDate]);
+  const persistRoutine = async r => {
+    if (cloudUserId && supabaseClient) {
+      const ok = CloudCache.set(cloudUserId, "routine", JSON.stringify(r));
+      try { await writeCloudSnapshot(cloudUserId, r, logs); return true; }
+      catch (error) { setToast("Sincronización pendiente: revisa la conexión antes de cerrar Memo Set."); setTimeout(() => setToast(null), 3500); return ok; }
+    }
+    const ok = LocalStore.set(profile, "routine", JSON.stringify(r));
+    if (!ok) setStorageOk(false);
+    return ok;
+  };
+  const persistLogs = async l => {
+    if (cloudUserId && supabaseClient) {
+      const ok = CloudCache.set(cloudUserId, "logs", JSON.stringify(l));
+      try { await writeCloudSnapshot(cloudUserId, routine, l); return true; }
+      catch (error) { setToast("Sincronización pendiente: revisa la conexión antes de cerrar Memo Set."); setTimeout(() => setToast(null), 3500); return ok; }
+    }
+    const ok = LocalStore.set(profile, "logs", JSON.stringify(l));
+    if (!ok) setStorageOk(false);
+    return ok;
+  };
+  const signInEmail = async (email, password) => {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return "Sesión iniciada. Cargando tu rutina segura…";
+  };
+  const signUpEmail = async (email, password) => {
+    if (password.length < 8) throw new Error("Usa una contraseña de al menos 8 caracteres.");
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) throw error;
+    if (!data.session) return "Revisa tu correo y confirma la cuenta. Después vuelve para iniciar sesión.";
+    return "Cuenta creada. Empezarás con una rutina vacía que puedes personalizar.";
+  };
+  const resetEmailPassword = async email => {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+    if (error) throw error;
+    return "Si existe una cuenta con ese correo, recibirás instrucciones para restablecer la contraseña.";
+  };
+  const makeQuickRoutine = () => {
+    const workoutTemplates = DEFAULT_ROUTINE.filter(day => day.exercises?.length);
+    if (!workoutTemplates.length) return;
+    const fresh = DEFAULT_ROUTINE.map((day, dayIndex) => {
+      if (dayIndex >= quickRoutineDays) return { ...day, exercises: [] };
+      const template = workoutTemplates[dayIndex % workoutTemplates.length];
+      const exercises = deepClone(template.exercises.slice(0, 4)).map((exercise, exerciseIndex) => ({ ...exercise, id: `quick-${day.id}-${exerciseIndex}-${Date.now()}` }));
+      return { ...day, exercises };
+    });
+    setRoutine(fresh);
+    setActiveDay(fresh.find(day => day.exercises.length)?.id || fresh[0].id);
+    setShowQuickRoutine(false);
+    setEditMode(false);
+    persistRoutine(fresh);
+    setToast(`Rutina rápida lista: ${quickRoutineDays} días para que la adaptes.`);
+    setTimeout(() => setToast(null), 2800);
+  };
+  const signOutCloud = async () => {
+    if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    if (routineSaveTimer.current) clearTimeout(routineSaveTimer.current);
+    if (cloudUserId && supabaseClient) {
+      await persistRoutine(routine);
+      await commitTodayInputs();
+    }
+    if (supabaseClient) await supabaseClient.auth.signOut();
+    setCloudSession(null);
+    setCloudUserId("");
+    setPasswordRecovery(false);
+    clearActiveProfileStorage();
+    setProfile("");
+    setReady(false);
+    setRoutine(emptyRoutine());
+    setLogs({});
+    setTodayInputs({});
+    setEditMode(false);
+    setShowStats(false);
+  };
+  const switchUser = () => {
+    clearActiveProfileStorage();
+    setKnownProfiles(listKnownProfiles());
+    setProfile("");
+    setNameInput("");
+    setReady(false);
+    setRoutine(deepClone(DEFAULT_ROUTINE));
+    setLogs({});
+    setTodayInputs({});
+    setLogDate(todayStr());
+    setActiveDay("lunes");
+    setEditMode(false);
+    setShowStats(false);
+    setShowInfo(false);
+    suppressNextAutosave.current = true;
+    skipFirstRoutineSave.current = true;
+  };
+  const chooseProfile = name => {
+    const clean = (name || "").trim();
+    if (!clean) return;
+    const ok = setActiveProfileStorage(clean);
+    setStorageOk(ok);
+    setProfile(clean);
+  };
+  const exportBackup = () => {
+    const data = { profile, exportedAt: new Date().toISOString(), routine, logs };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `respaldo-rutina-${profile}-${todayStr()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  const handleImportFile = e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (data.routine) { setRoutine(data.routine); persistRoutine(data.routine); }
+        if (data.logs) { setLogs(data.logs); persistLogs(data.logs); }
+        suppressNextAutosave.current = true;
+        skipFirstRoutineSave.current = true;
+        setToast("Respaldo importado ✓");
+        setTimeout(() => setToast(null), 2200);
+      } catch (err) {
+        setToast("No se pudo leer ese archivo de respaldo");
+        setTimeout(() => setToast(null), 2200);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+  const currentDay = routine.find(d => d.id === activeDay);
+  const updateExercise = (exId, patch) => {
+    setRoutine(prev => prev.map(day => day.id !== activeDay ? day : {
+      ...day,
+      exercises: day.exercises.map(e => e.id === exId ? {
+        ...e,
+        ...patch
+      } : e)
+    }));
+  };
+  const removeExercise = exId => {
+    setRoutine(prev => prev.map(day => day.id !== activeDay ? day : {
+      ...day,
+      exercises: day.exercises.filter(e => e.id !== exId)
+    }));
+  };
+  const addExercise = newEx => {
+    setRoutine(prev => prev.map(day => day.id !== activeDay ? day : {
+      ...day,
+      exercises: [...day.exercises, newEx]
+    }));
+    setTodayInputs(prev => ({
+      ...prev,
+      [newEx.id]: Array.from({
+        length: numSets(newEx)
+      }, () => "")
+    }));
+    setShowAddForm(false);
+  };
+  const addSet = exId => {
+    setRoutine(prev => prev.map(day => day.id !== activeDay ? day : {
+      ...day,
+      exercises: day.exercises.map(e => {
+        if (e.id !== exId) return e;
+        if (e.dropset) return {
+          ...e,
+          dropsetCount: e.dropsetCount + 1
+        };
+        return {
+          ...e,
+          reps: [...e.reps, e.reps[e.reps.length - 1] || 12]
+        };
+      })
+    }));
+  };
+  const removeSet = exId => {
+    setRoutine(prev => prev.map(day => day.id !== activeDay ? day : {
+      ...day,
+      exercises: day.exercises.map(e => {
+        if (e.id !== exId) return e;
+        if (e.dropset) return {
+          ...e,
+          dropsetCount: Math.max(1, e.dropsetCount - 1)
+        };
+        return {
+          ...e,
+          reps: e.reps.slice(0, -1)
+        };
+      })
+    }));
+  };
+  const toggleEdit = () => {
+    if (editMode) persistRoutine(routine);
+    setEditMode(s => !s);
+  };
+  const resetRoutine = () => {
+    const fresh = deepClone(DEFAULT_ROUTINE);
+    setRoutine(fresh);
+    persistRoutine(fresh);
+    setConfirmReset(false);
+    setToast("Rutina restaurada al plan original");
+    setTimeout(() => setToast(null), 2200);
+  };
+  const onChangeToday = (exId, idx, value) => {
+    setTodayInputs(prev => {
+      const arr = prev[exId] ? [...prev[exId]] : [];
+      arr[idx] = value;
+      return {
+        ...prev,
+        [exId]: arr
+      };
+    });
+  };
+
+  // Build log entries for the selected date from current inputs (used by autosave + finish button)
+  const commitTodayInputs = async () => {
+    const t = logDate;
+    const nextLogs = {
+      ...logs
+    };
+    let any = false;
+    routine.forEach(day => {
+      day.exercises.forEach(exr => {
+        const vals = todayInputs[exr.id] || [];
+        const weights = vals.map(v => v === "" || v === undefined ? null : parseFloat(v));
+        if (weights.some(w => w !== null && !isNaN(w))) {
+          any = true;
+          const existing = nextLogs[exr.id] ? [...nextLogs[exr.id]] : [];
+          const idx = existing.findIndex(e => e.date === t);
+          if (idx >= 0) existing[idx] = {
+            date: t,
+            weights
+          };else existing.push({
+            date: t,
+            weights
+          });
+          existing.sort((a, b) => a.date.localeCompare(b.date));
+          nextLogs[exr.id] = existing.slice(-30);
+        }
+      });
+    });
+    setLogs(nextLogs);
+    await persistLogs(nextLogs);
+    return any;
+  };
+
+  // Autosave weights/reps as they're entered — debounced so we don't spam storage while typing
+  useEffect(() => {
+    if (!ready) return;
+    if (suppressNextAutosave.current) {
+      suppressNextAutosave.current = false;
+      return;
+    }
+    if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    logsSaveTimer.current = setTimeout(() => {
+      commitTodayInputs();
+    }, 700);
+    return () => {
+      if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todayInputs, ready]);
+
+  // Autosave routine edits (reps, name, equipment, sets…) the same way
+  useEffect(() => {
+    if (!ready) return;
+    if (skipFirstRoutineSave.current) {
+      skipFirstRoutineSave.current = false;
+      return;
+    }
+    if (routineSaveTimer.current) clearTimeout(routineSaveTimer.current);
+    routineSaveTimer.current = setTimeout(() => {
+      persistRoutine(routine);
+    }, 700);
+    return () => {
+      if (routineSaveTimer.current) clearTimeout(routineSaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routine, ready]);
+
+  // Flush any pending save immediately before navigating away from the current date/day,
+  // so nothing is lost even without pressing "Finalizar entrenamiento"
+  const changeDay = async dayId => {
+    if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    await commitTodayInputs();
+    setActiveDay(dayId);
+  };
+  const changeDate = async newDate => {
+    if (!newDate) return;
+    if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    await commitTodayInputs();
+    setLogDate(newDate);
+  };
+  const finishWorkout = async () => {
+    if (logsSaveTimer.current) clearTimeout(logsSaveTimer.current);
+    const any = await commitTodayInputs();
+    if (!any) {
+      setToast("Registra al menos un peso antes de finalizar");
+      setTimeout(() => setToast(null), 2200);
+      return;
+    }
+    setToast("¡Entrenamiento finalizado! Tu progreso quedó guardado 💪");
+    setTimeout(() => setToast(null), 2600);
+  };
+  const progress = useMemo(() => {
+    if (!currentDay) return {
+      done: 0,
+      total: 0
+    };
+    let done = 0;
+    currentDay.exercises.forEach(exr => {
+      const vals = todayInputs[exr.id] || [];
+      if (vals.some(v => v !== "" && v !== undefined)) done += 1;
+    });
+    return {
+      done,
+      total: currentDay.exercises.length
+    };
+  }, [currentDay, todayInputs]);
+  const emptyDayPanel = currentDay && currentDay.exercises.length === 0 ? React.createElement("div", { className: "empty-day-panel rounded-2xl p-5 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
+    React.createElement("div", { className: "w-11 h-11 rounded-xl flex items-center justify-center mb-3", style: { background: "rgba(25,245,154,.1)", color: C.brass } }, React.createElement(Dumbbell, { size: 21 })),
+    React.createElement("h2", { className: "text-lg font-semibold mb-1", style: { color: C.text, fontFamily: "Space Grotesk, sans-serif" } }, "Este día empieza contigo"),
+    React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Agrega ejercicios a tu gusto o crea una rutina rápida para tener un punto de partida."),
+    React.createElement("div", { className: "flex flex-col gap-2" },
+      React.createElement("button", { onClick: () => { setEditMode(true); setShowAddForm(true); }, className: "rounded-xl py-3 text-sm font-semibold", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, "＋ Elegir ejercicios"),
+      React.createElement("button", { onClick: () => setShowQuickRoutine(true), className: "rounded-xl py-3 text-sm font-semibold", style: { background: C.surfaceAlt, color: C.brassLight, border: `1px solid ${C.border}` } }, "Generar rutina rápida"))) : null;
+  if (!authChecked) {
+    return React.createElement("div", { className: "min-h-screen flex items-center justify-center", style: { background: C.bg, color: C.textDim, fontFamily: "DM Sans, sans-serif" } }, "Verificando tu sesión segura…");
+  }
+  if (passwordRecovery && supabaseClient) {
+    return React.createElement(PasswordRecoveryGate, {
+      onUpdatePassword: async password => { const { error } = await supabaseClient.auth.updateUser({ password }); if (error) throw error; setPasswordRecovery(false); setToast("Contraseña actualizada."); setTimeout(() => setToast(null), 2500); },
+      onCancel: signOutCloud
+    });
+  }
+  if (!profile) {
+    return React.createElement(AuthGate, {
+      knownProfiles,
+      storageOk,
+      cloudConfigured: SUPABASE_READY,
+      onChooseLocal: name => { const clean = (name || "").trim(); if (clean) chooseProfile(clean); },
+      onSignIn: signInEmail,
+      onSignUp: signUpEmail,
+      onResetPassword: resetEmailPassword
+    });
+  }
+  if (!ready || !currentDay) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "loading-screen min-h-screen flex items-center justify-center",
+      style: {
+        background: C.bg
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col items-center gap-3"
+    }, /*#__PURE__*/React.createElement(Dumbbell, {
+      className: "animate-pulse",
+      color: C.brass,
+      size: 32
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.textDim,
+        fontFamily: "DM Sans, sans-serif"
+      },
+      className: "text-sm"
+    }, "Cargando tu rutina…")));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "app-shell min-h-screen pb-24",
+    style: {
+      background: C.bg,
+      fontFamily: "DM Sans, sans-serif"
+    }
+  }, /*#__PURE__*/React.createElement("style", null, `
+        @import url('${FONT_LINK}');
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        ::selection { background: ${C.brass}55; }
+      `), /*#__PURE__*/React.createElement("div", {
+    className: "app-header px-4 pt-5 pb-3 sticky top-0 z-30",
+    style: {
+      background: `${C.bg}f2`,
+      backdropFilter: "blur(6px)",
+      borderBottom: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "brand-mark w-9 h-9 rounded-2xl flex items-center justify-center",
+    style: {
+      background: C.brass
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "MemoSet.png",
+    alt: "Logo Memo Set",
+    className: "brand-logo"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "brand-lockup font-semibold leading-none",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif",
+      fontSize: "17px",
+      letterSpacing: "0.3px"
+    }
+  }, React.createElement(React.Fragment, null, "Memo ", React.createElement("span", { style: { color: "#3BE98F" } }, "Set"))), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-0.5",
+    style: {
+      color: C.textFaint
+    }
+  }, profile))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowStats(true),
+    className: "icon-action w-8 h-8 rounded-full flex items-center justify-center",
+    style: {
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement(TrendingUp, {
+    size: 17
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowInfo(true),
+    className: "icon-action w-8 h-8 rounded-full flex items-center justify-center",
+    style: {
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement(Info, {
+    size: 17
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: toggleEdit,
+    className: "icon-action w-8 h-8 rounded-full flex items-center justify-center",
+    style: {
+      background: editMode ? C.brass : C.surfaceAlt,
+      color: editMode ? "#06231A" : C.textDim
+    }
+  }, editMode ? /*#__PURE__*/React.createElement(Check, {
+    size: 16
+  }) : /*#__PURE__*/React.createElement(Pencil, {
+    size: 15
+  })))), !showStats && /*#__PURE__*/React.createElement("div", {
+    className: "day-nav flex gap-2 mt-4 overflow-x-auto pb-1"
+  }, routine.map(day => {
+    const active = day.id === activeDay;
+    return /*#__PURE__*/React.createElement("button", {
+      key: day.id,
+      onClick: () => changeDay(day.id),
+      className: `day-tab${active ? " active" : ""} flex-shrink-0 rounded-xl px-3 py-2 text-left`,
+      style: {
+        background: active ? C.surfaceAlt : C.surface,
+        border: `1px solid ${active ? "#19F59A" : C.borderSoft}`,
+        minWidth: 76
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-xs font-bold",
+      style: {
+        color: active ? "#47F2D0" : C.text,
+        fontFamily: "Space Grotesk, sans-serif"
+      }
+    }, day.short), /*#__PURE__*/React.createElement("p", {
+      className: "mt-0.5 leading-tight",
+      style: {
+        color: active ? "#C0CEC6" : C.textFaint,
+        maxWidth: 90,
+        fontSize: "10px"
+      }
+    }, day.group));
+  }))), !showStats && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "px-4 pt-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "session-meta rounded-xl px-3 py-2 mb-3 flex items-center justify-between gap-2",
+    style: {
+      background: C.surface,
+      border: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs",
+    style: {
+      color: C.textDim
+    }
+  }, "Fecha"), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: logDate,
+    max: todayStr(),
+    onChange: e => changeDate(e.target.value),
+    className: "text-xs rounded-lg px-2 py-1 outline-none",
+    style: {
+      background: C.surfaceAlt,
+      color: C.text,
+      border: `1px solid ${C.border}`,
+      colorScheme: "dark"
+    }
+  }), logDate !== todayStr() && /*#__PURE__*/React.createElement("button", {
+    onClick: () => changeDate(todayStr()),
+    className: "text-xs underline",
+    style: {
+      color: currentDay.color
+    }
+  }, "Hoy")), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-semibold flex-shrink-0",
+    style: {
+      color: currentDay.color,
+      fontFamily: "JetBrains Mono, monospace"
+    }
+  }, progress.done, "/", progress.total)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mb-3 italic",
+    style: {
+      color: C.textFaint
+    }
+  }, currentDay.note)), /*#__PURE__*/React.createElement("div", {
+    className: "px-4"
+  }, emptyDayPanel || currentDay.exercises.map(exr => /*#__PURE__*/React.createElement(ExerciseCard, {
+    key: exr.id,
+    exercise: exr,
+    dayColor: currentDay.color,
+    editMode: editMode,
+    todayValues: todayInputs[exr.id] || [],
+    onChangeToday: (idx, val) => onChangeToday(exr.id, idx, val),
+    onUpdate: patch => updateExercise(exr.id, patch),
+    onRemove: () => removeExercise(exr.id),
+    onAddSet: () => addSet(exr.id),
+    onRemoveSet: () => removeSet(exr.id),
+    log: logs[exr.id],
+    onZoom: setZoomedExercise
+  })), editMode && !showAddForm && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowAddForm(true),
+    className: "w-full rounded-2xl py-3 text-sm font-medium flex items-center justify-center gap-2 mb-3",
+    style: {
+      border: `1px dashed ${currentDay.color}`,
+      color: currentDay.color
+    }
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 16
+  }), " Agregar ejercicio a ", currentDay.label), editMode && showAddForm && /*#__PURE__*/React.createElement(ExercisePicker, {
+    dayColor: currentDay.color,
+    onAdd: addExercise,
+    onCancel: () => setShowAddForm(false)
+  }), editMode && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setConfirmReset(true),
+    className: "w-full flex items-center justify-center gap-2 text-xs py-3",
+    style: {
+      color: C.textFaint
+    }
+  }, /*#__PURE__*/React.createElement(RotateCcw, {
+    size: 13
+  }), " Restaurar rutina original")), !editMode && currentDay.exercises.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "finish-bar fixed bottom-0 left-0 right-0 px-4 py-3 z-30",
+    style: {
+      background: `${C.bg}f5`,
+      backdropFilter: "blur(6px)",
+      borderTop: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: finishWorkout,
+    className: "w-full rounded-2xl py-3 flex items-center justify-center gap-2 font-semibold",
+    style: {
+      background: currentDay.color,
+      color: "#06231A",
+      fontFamily: "Space Grotesk, sans-serif"
+    }
+  }, /*#__PURE__*/React.createElement(Save, {
+    size: 16
+  }), " FINALIZAR ENTRENAMIENTO"))), showStats && /*#__PURE__*/React.createElement(StatsView, {
+    routine: routine,
+    logs: logs,
+    onBack: () => setShowStats(false)
+  }), toast && /*#__PURE__*/React.createElement("div", {
+    className: "toast fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm z-40",
+    style: {
+      background: C.brass,
+      color: "#06231A",
+      fontWeight: 600
+    }
+  }, toast), showInfo && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center",
+    style: {
+      background: "rgba(0,0,0,0.6)"
+    },
+    onClick: () => setShowInfo(false)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-sm rounded-t-2xl sm:rounded-2xl p-5",
+    style: {
+      background: C.surface,
+      border: `1px solid ${C.border}`
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center mb-3"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold",
+    style: {
+      color: C.text,
+      fontFamily: "Space Grotesk, sans-serif"
+    }
+  }, "Cómo funciona"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowInfo(false)
+  }, /*#__PURE__*/React.createElement(X, {
+    size: 18,
+    color: C.textDim
+  }))), /*#__PURE__*/React.createElement("ul", {
+    className: "text-sm space-y-2 list-none pl-0",
+    style: {
+      color: C.textDim
+    }
+  }, /*#__PURE__*/React.createElement("li", null, "• Puedes elegir la fecha del entrenamiento arriba — si registras un día anterior, se guarda en esa fecha aunque no le des a \"Finalizar\"."), /*#__PURE__*/React.createElement("li", null, "• Las repeticiones y el peso de cada serie se editan directo, sin necesidad del lápiz — ideal para hacerlo rápido a mitad de entrenamiento."), /*#__PURE__*/React.createElement("li", null, "• Todo lo que escribas se guarda solo, al momento — incluso si cambias de día o de fecha antes de terminar. Toca el lápiz solo si quieres renombrar ejercicios, cambiar el descanso o el equipo, o agregar/quitar series."), /*#__PURE__*/React.createElement("li", null, "• Toca la imagen de un ejercicio para verla en grande y estudiar bien la técnica."), /*#__PURE__*/React.createElement("li", null, "• \"Agregar ejercicio\" abre una lista de más de 170 ejercicios en español (incluye cardio: caminadora, elíptica, bici, escaladora) con su imagen ya incluida en la app — no necesita internet para verse."), /*#__PURE__*/React.createElement("li", null, "• El peso se registra en libras (lb). Pulsa \"Finalizar entrenamiento\" al terminar para cerrar la sesión."), /*#__PURE__*/React.createElement("li", null, "• \"Último\" te muestra el peso de tu sesión anterior para que sepas dónde ibas, y el ícono de gráfica (arriba) muestra tu progreso por ejercicio a lo largo del tiempo."), /*#__PURE__*/React.createElement("li", null, "• Los perfiles locales se quedan en este dispositivo. Las cuentas con correo sincronizan rutina y progreso cuando se conecta el servicio seguro de Memo Set."), /*#__PURE__*/React.createElement("li", null, "• Las cuentas nuevas empiezan sin ejercicios; puedes armar cada día a tu manera o crear una propuesta rápida de 2 a 5 días y adaptarla.")), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs mt-4 pt-3",
+    style: {
+      color: C.textFaint,
+      borderTop: `1px solid ${C.borderSoft}`
+    }
+  }, "Imágenes de ejercicios incluidas en la app — Free Exercise DB (dominio público)."), /*#__PURE__*/React.createElement("a", {
+  href: "https://paypal.me/kathakiut?locale.x=es_XC&country.x=CO",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  className: "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold mt-3",
+  style: {
+    background: "linear-gradient(135deg, #19D887, #47F2D0)",
+    color: "#06231A"
+  }
+}, "☕ Invítame un café (PayPal)"), /*#__PURE__*/React.createElement(React.Fragment, null, !storageOk && /*#__PURE__*/React.createElement("div", {
+  className: "rounded-lg px-3 py-2 mt-3 text-xs text-center leading-relaxed",
+  style: {
+    background: "#14211A",
+    color: "#D9E9DF",
+    border: "1px solid #294A38"
+  }
+}, "⚠️ El guardado automático no está funcionando en este navegador. Usa \"Exportar respaldo\" seguido para no perder tu progreso."), /*#__PURE__*/React.createElement("div", {
+  className: "flex gap-2 mt-3"
+}, /*#__PURE__*/React.createElement("button", {
+  onClick: exportBackup,
+  className: "flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium",
+  style: {
+    background: C.surfaceAlt,
+    color: C.textDim,
+    border: `1px solid ${C.borderSoft}`
+  }
+}, /*#__PURE__*/React.createElement(Save, {
+  size: 14
+}), " Exportar respaldo"), /*#__PURE__*/React.createElement("button", {
+  onClick: () => importInputRef.current && importInputRef.current.click(),
+  className: "flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium",
+  style: {
+    background: C.surfaceAlt,
+    color: C.textDim,
+    border: `1px solid ${C.borderSoft}`
+  }
+}, /*#__PURE__*/React.createElement(RotateCcw, {
+  size: 14
+}), " Importar respaldo"), /*#__PURE__*/React.createElement("input", {
+  type: "file",
+  accept: "application/json",
+  ref: importInputRef,
+  style: {
+    display: "none"
+  },
+  onChange: handleImportFile
+}))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setShowInfo(false);
+      cloudUserId ? signOutCloud() : switchUser();
+    },
+    className: "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium mt-3",
+    style: {
+      background: C.surfaceAlt,
+      color: C.textDim,
+      border: `1px solid ${C.borderSoft}`
+    }
+  }, /*#__PURE__*/React.createElement(UserIcon, {
+    size: 14
+  }), cloudUserId ? "Cerrar sesión" : `Cambiar de usuario (${profile})`))), showQuickRoutine && React.createElement("div", { className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4", style: { background: "rgba(0,0,0,.7)" }, onClick: () => setShowQuickRoutine(false) }, React.createElement("section", { className: "w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5", style: { background: C.surface, border: `1px solid ${C.border}` }, onClick: e => e.stopPropagation() }, React.createElement("h2", { className: "text-lg font-semibold mb-2", style: { color: C.text } }, "Tu punto de partida"), React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Propuesta básica editable con ejercicios del catálogo."), React.createElement("label", { className: "block text-sm mb-2", style: { color: C.textDim } }, "¿Cuántos días por semana?"), React.createElement("div", { className: "grid grid-cols-4 gap-2 mb-4" }, [2,3,4,5].map(days => React.createElement("button", { key: days, onClick: () => setQuickRoutineDays(days), className: "rounded-lg py-2", style: { background: quickRoutineDays === days ? "rgba(25,245,154,.14)" : C.surfaceAlt, color: quickRoutineDays === days ? C.brassLight : C.text, border: `1px solid ${quickRoutineDays === days ? C.brass : C.border}` } }, `${days} días`))), React.createElement("button", { onClick: makeQuickRoutine, className: "w-full rounded-xl py-3 font-semibold", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, "Crear y adaptar rutina"))), confirmReset && /*#__PURE__*/React.createElement(ConfirmModal, {
+    title: "¿Restaurar rutina original?",
+    body: "Esto reemplaza los ejercicios, series y descansos por la rutina original. Tu historial de pesos registrados no se borra.",
+    onConfirm: resetRoutine,
+    onCancel: () => setConfirmReset(false)
+  }), zoomedExercise && /*#__PURE__*/React.createElement(ZoomModal, {
+    exercise: zoomedExercise,
+    onClose: () => setZoomedExercise(null)
+  }));
+}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(/*#__PURE__*/React.createElement(WorkoutApp, null));
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
