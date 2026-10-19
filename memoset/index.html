@@ -22,6 +22,15 @@
 <style>
   html, body { margin:0; padding:0; background:#0B0D0C; }
   * { -webkit-tap-highlight-color: transparent; }
+
+.app-shell{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.028) 0 2px,transparent 2px 5px),repeating-linear-gradient(-45deg,rgba(0,0,0,.3) 0 2px,transparent 2px 5px),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,auto,100% 72px}
+.app-header{background:rgba(7,9,10,.8)!important;backdrop-filter:blur(14px);border-bottom:1px solid rgba(47,224,122,.2)!important}
+.icon-action{display:none!important}
+.app-tabs{display:flex;gap:6px;margin-top:12px;padding:4px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.app-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 4px;border-radius:10px;font:600 12.5px Inter,sans-serif;color:#aab8b0;transition:.2s}
+.app-tab.on{background:rgba(47,224,122,.14);color:#7cf2ae;box-shadow:inset 0 0 0 1px rgba(47,224,122,.4),0 0 18px -6px #2fe07a}
+.session-meta,.empty-day-panel,.rest-panel{background:rgba(16,20,19,.72)!important;backdrop-filter:blur(10px);border-color:rgba(255,255,255,.08)!important}
+.brand-mark{box-shadow:0 0 18px -4px #2fe07a}
 </style>
 
 <style id="memoset-theme">
@@ -31,9 +40,9 @@
     --ms-panel: #151817;
     --ms-panel-2: #1e2220;
     --ms-line: #252c28;
-    --ms-green: #19f59a;
-    --ms-mint: #47f2d0;
-    --ms-accent: #19f59a;
+    --ms-green: #2fe07a;
+    --ms-mint: #7cf2ae;
+    --ms-accent: #2fe07a;
   }
   html { background: var(--ms-bg); }
   body {
@@ -70,24 +79,24 @@
   }
   .app-header {
     background: rgba(11,13,12,.84) !important;
-    border-bottom-color: rgba(25,245,154,.12) !important;
+    border-bottom-color: rgba(47,224,122,.12) !important;
     box-shadow: 0 14px 35px rgba(0,0,0,.16);
   }
   .brand-mark {
     position: relative;
-    background: linear-gradient(145deg, #47f2d0, #19d887) !important;
-    box-shadow: 0 0 0 4px rgba(25,245,154,.08), 0 0 28px rgba(25,245,154,.34);
+    background: linear-gradient(145deg, #7cf2ae, #19d887) !important;
+    box-shadow: 0 0 0 4px rgba(47,224,122,.08), 0 0 28px rgba(47,224,122,.34);
   }
   .brand-mark { overflow: hidden; padding: 0; background: #06231a !important; }
   .brand-logo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
   .icon-action { background: rgba(30,34,32,.82) !important; border: 1px solid rgba(255,255,255,.04); }
-  .icon-action:hover { border-color: rgba(25,245,154,.46); color: var(--ms-green) !important; box-shadow: 0 0 18px rgba(25,245,154,.12); }
+  .icon-action:hover { border-color: rgba(47,224,122,.46); color: var(--ms-green) !important; box-shadow: 0 0 18px rgba(47,224,122,.12); }
   .day-nav { scrollbar-width: none; }
   .day-nav::-webkit-scrollbar { display: none; }
   .day-tab { min-width: 86px !important; border-radius: 14px !important; background: rgba(21,24,23,.78) !important; border-color: rgba(255,255,255,.07) !important; }
-  .day-tab:hover { border-color: rgba(25,245,154,.4) !important; transform: translateY(-1px); }
+  .day-tab:hover { border-color: rgba(47,224,122,.4) !important; transform: translateY(-1px); }
   .day-tab[style*="background"] { box-shadow: 0 8px 25px rgba(0,0,0,.24); }
-  .session-meta { background: linear-gradient(120deg, rgba(21,24,23,.92), rgba(30,34,32,.72)) !important; border-color: rgba(25,245,154,.15) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+  .session-meta { background: linear-gradient(120deg, rgba(21,24,23,.92), rgba(30,34,32,.72)) !important; border-color: rgba(47,224,122,.15) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
   .exercise-card, .stats-card {
     position: relative;
     background: linear-gradient(145deg, rgba(24,28,26,.96), rgba(17,20,19,.96)) !important;
@@ -100,30 +109,30 @@
     position: absolute;
     top: 0; left: 22px; right: 22px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(25,245,154,.35), transparent);
+    background: linear-gradient(90deg, transparent, rgba(47,224,122,.35), transparent);
     opacity: .65;
   }
   .exercise-card input, .exercise-card select, .picker-card input, .picker-card select, .session-meta input {
     border-color: rgba(255,255,255,.08) !important;
   }
-  .exercise-card input:focus, .picker-card input:focus, .picker-card select:focus, .session-meta input:focus { border-color: rgba(25,245,154,.75) !important; box-shadow: 0 0 0 3px rgba(25,245,154,.1); }
-  .picker-card { background: rgba(26,31,28,.96) !important; border-color: rgba(25,245,154,.55) !important; box-shadow: 0 16px 35px rgba(0,0,0,.22); }
-  .finish-bar { background: linear-gradient(180deg, rgba(11,13,12,0), rgba(11,13,12,.95) 35%) !important; border-top-color: rgba(25,245,154,.12) !important; }
-  .finish-bar button { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; border: 1px solid rgba(71,242,208,.38); box-shadow: 0 8px 28px rgba(25,245,154,.23); letter-spacing: .01em; }
-  .finish-bar button:hover { box-shadow: 0 10px 34px rgba(25,245,154,.34); transform: translateY(-1px); }
-  .toast { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; box-shadow: 0 10px 30px rgba(25,245,154,.25); }
+  .exercise-card input:focus, .picker-card input:focus, .picker-card select:focus, .session-meta input:focus { border-color: rgba(47,224,122,.75) !important; box-shadow: 0 0 0 3px rgba(47,224,122,.1); }
+  .picker-card { background: rgba(26,31,28,.96) !important; border-color: rgba(47,224,122,.55) !important; box-shadow: 0 16px 35px rgba(0,0,0,.22); }
+  .finish-bar { background: linear-gradient(180deg, rgba(11,13,12,0), rgba(11,13,12,.95) 35%) !important; border-top-color: rgba(47,224,122,.12) !important; }
+  .finish-bar button { background: linear-gradient(135deg, #19d887, #7cf2ae) !important; color: #06231a !important; border: 1px solid rgba(71,242,208,.38); box-shadow: 0 8px 28px rgba(47,224,122,.23); letter-spacing: .01em; }
+  .finish-bar button:hover { box-shadow: 0 10px 34px rgba(47,224,122,.34); transform: translateY(-1px); }
+  .toast { background: linear-gradient(135deg, #19d887, #7cf2ae) !important; color: #06231a !important; box-shadow: 0 10px 30px rgba(47,224,122,.25); }
   .login-screen { background: transparent !important; }
-  .login-screen > div { position: relative; padding: 2.5rem 1.4rem; border: 1px solid rgba(255,255,255,.07); border-radius: 28px; background: linear-gradient(145deg, rgba(21,24,23,.94), rgba(14,17,15,.88)); box-shadow: 0 24px 70px rgba(0,0,0,.3), 0 0 50px rgba(25,245,154,.05); }
-  .login-screen > div::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; background: linear-gradient(135deg, rgba(25,245,154,.3), transparent 30%, transparent 70%, rgba(25,245,154,.2)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; padding: 1px; }
+  .login-screen > div { position: relative; padding: 2.5rem 1.4rem; border: 1px solid rgba(255,255,255,.07); border-radius: 28px; background: linear-gradient(145deg, rgba(21,24,23,.94), rgba(14,17,15,.88)); box-shadow: 0 24px 70px rgba(0,0,0,.3), 0 0 50px rgba(47,224,122,.05); }
+  .login-screen > div::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; background: linear-gradient(135deg, rgba(47,224,122,.3), transparent 30%, transparent 70%, rgba(47,224,122,.2)); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; padding: 1px; }
   .login-mark { margin-top: -4px; }
   .loading-screen { background: transparent !important; }
   .stats-card { padding-top: 18px !important; }
-  .login-screen button { background: linear-gradient(135deg, #19d887, #47f2d0) !important; color: #06231a !important; box-shadow: 0 8px 24px rgba(25,245,154,.2); }
-  .login-screen input:focus { border-color: #19f59a !important; box-shadow: 0 0 0 3px rgba(25,245,154,.12); }
-  .day-tab:hover { box-shadow: 0 0 18px rgba(25,245,154,.09); }
-  .picker-card { border-color: rgba(25,245,154,.48) !important; }
-  .brand-mark { box-shadow: 0 0 0 3px rgba(25,245,154,.12), 0 0 22px rgba(25,245,154,.3); }
-  .exercise-card::after, .stats-card::after { background: linear-gradient(90deg, transparent, rgba(25,245,154,.46), rgba(71,242,208,.26), transparent); }
+  .login-screen button { background: linear-gradient(135deg, #19d887, #7cf2ae) !important; color: #06231a !important; box-shadow: 0 8px 24px rgba(47,224,122,.2); }
+  .login-screen input:focus { border-color: #2fe07a !important; box-shadow: 0 0 0 3px rgba(47,224,122,.12); }
+  .day-tab:hover { box-shadow: 0 0 18px rgba(47,224,122,.09); }
+  .picker-card { border-color: rgba(47,224,122,.48) !important; }
+  .brand-mark { box-shadow: 0 0 0 3px rgba(47,224,122,.12), 0 0 22px rgba(47,224,122,.3); }
+  .exercise-card::after, .stats-card::after { background: linear-gradient(90deg, transparent, rgba(47,224,122,.46), rgba(71,242,208,.26), transparent); }
   @media (min-width: 700px) {
     .app-shell { border-left: 1px solid rgba(255,255,255,.035); border-right: 1px solid rgba(255,255,255,.035); }
     .app-header { padding-left: 34px !important; padding-right: 34px !important; }
@@ -136,7 +145,7 @@
   }
 
   /* Global contrast and component consistency: no dark-on-dark native controls. */
-  :root { --ms-green: #19f59a; --ms-mint: #47f2d0; --ms-copy: #f3f8f4; --ms-muted: #c0cec6; --ms-subtle: #a3b2aa; }
+  :root { --ms-green: #2fe07a; --ms-mint: #7cf2ae; --ms-copy: #f3f8f4; --ms-muted: #c0cec6; --ms-subtle: #a3b2aa; }
   .app-shell, .login-screen { color: var(--ms-copy); }
   .app-shell input, .app-shell select, .login-screen input, .login-screen select {
     color: var(--ms-copy) !important;
@@ -149,28 +158,28 @@
   .app-shell button:not(.finish-bar button):not(.login-screen button) { transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
   .app-shell button:hover { filter: brightness(1.08); }
   .day-tab:not(.active) { color: #f3f8f4; }
-  .day-tab.active { background: linear-gradient(145deg, #1a2721, #121915) !important; border: 1px solid #19f59a !important; box-shadow: inset 0 0 0 1px rgba(25,245,154,.08), 0 0 20px rgba(25,245,154,.10); }
-  .day-tab.active p:first-child { color: #47f2d0 !important; }
+  .day-tab.active { background: linear-gradient(145deg, #1a2721, #121915) !important; border: 1px solid #2fe07a !important; box-shadow: inset 0 0 0 1px rgba(47,224,122,.08), 0 0 20px rgba(47,224,122,.10); }
+  .day-tab.active p:first-child { color: #7cf2ae !important; }
   .day-tab.active p:last-child { color: #c0cec6 !important; }
   .picker-card { color: #f3f8f4; border-style: solid !important; background: linear-gradient(145deg, #1a211e, #121714) !important; }
   .picker-card input, .picker-card select { background: #101512 !important; }
   .exercise-card, .stats-card { color: #f3f8f4; }
   .session-meta input { background: #101512 !important; }
   .icon-action { color: #d4e0d9 !important; }
-  .brand-lockup { font-family: "Space Grotesk", sans-serif; font-weight: 700; letter-spacing: -.035em; color: #f4f7f2; }
+  .brand-lockup { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; letter-spacing: -.035em; color: #f4f7f2; }
   .brand-lockup span { color: #3be98f !important; }
-  .brand-tagline { color: #35e99a !important; font-family: "DM Sans", sans-serif; font-weight: 700; text-shadow: 0 0 22px rgba(25,245,154,.18); }
-  .brand-tagline { color: #35e99a !important; text-shadow: 0 0 22px rgba(25,245,154,.18); }
+  .brand-tagline { color: #35e99a !important; font-family: "Inter", sans-serif; font-weight: 700; text-shadow: 0 0 22px rgba(47,224,122,.18); }
+  .brand-tagline { color: #35e99a !important; text-shadow: 0 0 22px rgba(47,224,122,.18); }
   .brand-mark { background: #06231a !important; }
-  .finish-bar button, .login-screen button { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #47f2d0) !important; border-color: rgba(71,242,208,.45) !important; }
-  .toast { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #47f2d0) !important; }
+  .finish-bar button, .login-screen button { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #7cf2ae) !important; border-color: rgba(71,242,208,.45) !important; }
+  .toast { color: #05271b !important; background: linear-gradient(120deg, #20d98b, #7cf2ae) !important; }
   .login-screen > div { border-color: rgba(71,242,208,.18); background: linear-gradient(150deg, rgba(17,25,21,.97), rgba(8,14,11,.97)); }
-  .picker-card button:hover, .icon-action:hover { color: #47f2d0 !important; }
+  .picker-card button:hover, .icon-action:hover { color: #7cf2ae !important; }
   .stats-empty { border: 1px solid rgba(71,242,208,.17); background: linear-gradient(145deg, rgba(21,29,25,.88), rgba(12,18,15,.94)); box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 18px 45px rgba(0,0,0,.2); }
-  .stats-empty svg { color: #47f2d0 !important; filter: drop-shadow(0 0 12px rgba(71,242,208,.28)); }
+  .stats-empty svg { color: #7cf2ae !important; filter: drop-shadow(0 0 12px rgba(71,242,208,.28)); }
   .stats-empty p { color: #c0cec6 !important; line-height: 1.6; }
   .stats-empty p:first-of-type { color: #f3f8f4 !important; font-weight: 600; }
-  ::selection { color: #05271b; background: #47f2d0; }
+  ::selection { color: #05271b; background: #7cf2ae; }
 </style>
 </head>
 <body>
@@ -383,26 +392,26 @@ function MiniLineChart({
    Tokens
 --------------------------------------------------------- */
 const C = {
-  bg: "#0B0D0C",
-  surface: "#151817",
-  surfaceAlt: "#1E2220",
-  border: "#303733",
-  borderSoft: "#252C28",
+  bg: "#07090A",
+  surface: "#101413",
+  surfaceAlt: "#171D1B",
+  border: "#27312D",
+  borderSoft: "#1D2622",
   text: "#F4F7F2",
   textDim: "#C0CEC6",
   textFaint: "#A3B2AA",
-  brass: "#19F59A",
-  brassLight: "#47F2D0",
+  brass: "#2fe07a",
+  brassLight: "#7cf2ae",
   danger: "#F2786B"
 };
 const GROUP_COLORS = {
   glufem: "#19D887",
-  espalda: "#47F2D0",
+  espalda: "#7cf2ae",
   cuadriceps: "#8CEBC9",
   pecho: "#74EAB5"
 };
 const EQUIPMENT_OPTIONS = ["Máquina", "Mancuerna", "Barra", "Polea", "Peso corporal"];
-const FONT_LINK = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap";
+const FONT_LINK = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap";
 const EXERCISE_IMAGES = new Set(["Barbell_Ab_Rollout","Barbell_Ab_Rollout_-_On_Knees","Dumbbell_Side_Bend","Spell_Caster","Ab_Crunch_Machine","Smith_Machine_Hip_Raise","Bosu_Ball_Cable_Crunch_With_Side_Bends","Cable_Crunch","3_4_Sit-Up","Air_Bike","Barbell_Curl","Barbell_Curls_Lying_Against_An_Incline","Alternate_Hammer_Curl","Alternate_Incline_Dumbbell_Curl","Machine_Bicep_Curl","Machine_Preacher_Curls","Cable_Hammer_Curls_-_Rope_Attachment","Cable_Preacher_Curl","Close-Grip_EZ-Bar_Curl_with_Band","EZ-Bar_Curl","Barbell_Full_Squat","Barbell_Hack_Squat","Dumbbell_Lunges","Dumbbell_Rear_Lunge","Chair_Squat","Hack_Squat","Cable_Deadlifts","Cable_Hip_Adduction","Bench_Jump","Bodyweight_Squat","Anti-Gravity_Press","Barbell_Incline_Shoulder_Raise","Alternating_Deltoid_Raise","Arnold_Dumbbell_Press","Leverage_Shoulder_Press","Machine_Shoulder_Military_Press","Alternating_Cable_Shoulder_Press","Bent_Over_Low-Pulley_Side_Lateral","Handstand_Push-Ups","Alternating_Kettlebell_Press","Barbell_Bench_Press_-_Medium_Grip","Barbell_Guillotine_Bench_Press","Around_The_Worlds","Bent-Arm_Dumbbell_Pullover","Butterfly","Decline_Smith_Press","Cable_Chest_Press","Cable_Crossover","Clock_Push-Up","Incline_Push-Up","Clean","Clean_Deadlift","Dumbbell_Clean","Stiff-Legged_Dumbbell_Deadlift","Glute_Ham_Raise","Lying_Leg_Curls","Knee_Tuck_Jump","Natural_Glute_Ham_Raise","Alternating_Hang_Clean","Double_Kettlebell_Alternating_Hang_Clean","Bent_Over_Barbell_Row","Bent_Over_One-Arm_Long_Bar_Row","Bent_Over_Two-Dumbbell_Row","Bent_Over_Two-Dumbbell_Row_With_Palms_In","Leverage_High_Row","Lying_T-Bar_Row","Seated_Cable_Rows","Seated_One-arm_Cable_Pulley_Rows","Alternating_Kettlebell_Row","Alternating_Renegade_Row","Barbell_Deadlift","Deadlift_with_Bands","Hyperextensions_With_No_Hyperextension_Bench","Weighted_Ball_Hyperextension","Atlas_Stone_Trainer","Atlas_Stones","Barbell_Seated_Calf_Raise","Rocking_Standing_Calf_Raise","Calf_Raise_On_A_Dumbbell","Dumbbell_Seated_One-Leg_Calf_Raise","Calf_Press","Calf_Press_On_The_Leg_Press_Machine","Calf_Raises_-_With_Bands","Balance_Board","Donkey_Calf_Raises","Bent-Arm_Barbell_Pullover","Leverage_Iso_Row","Cable_Incline_Pushdown","Close-Grip_Front_Lat_Pulldown","Chin-Up","Pullups","Catch_and_Overhead_Throw","Overhead_Slam","Band_Assisted_Pull-Up","Gironda_Sternum_Chins","Thigh_Adductor","Lateral_Bound","Band_Hip_Adductions","Lateral_Box_Jump","Lateral_Cone_Hops","Bench_Press_-_Powerlifting","Bench_Press_with_Chains","Close-Grip_Dumbbell_Press","Decline_Dumbbell_Triceps_Extension","Dip_Machine","Machine_Triceps_Extension","Cable_Incline_Triceps_Extension","Cable_Lying_Triceps_Extension","Bench_Dips","Body_Tricep_Press","Barbell_Glute_Bridge","Barbell_Hip_Thrust","One-Legged_Cable_Kickback","Pull_Through","Butt_Lift_Bridge","Flutter_Kicks","Hip_Extension_with_Bands","Hip_Lift_with_Band","Downward_Facing_Balance","Physioball_Hip_Bridge","Barbell_Shrug","Barbell_Shrug_Behind_The_Back","Dumbbell_Shrug","Standing_Dumbbell_Upright_Row","Calf-Machine_Shoulder_Shrug","Leverage_Shrug","Cable_Shrugs","Upright_Cable_Row","Kettlebell_Sumo_High_Pull","Upright_Row_-_With_Bands","Finger_Curls","Palms-Down_Wrist_Curl_Over_A_Bench","Dumbbell_Lying_Pronation","Dumbbell_Lying_Supination","Cable_Wrist_Curl","Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl","Bottoms-Up_Clean_From_The_Hang_Position","Farmers_Walk","Plate_Pinch","Isometric_Neck_Exercise_-_Front_And_Back","Isometric_Neck_Exercise_-_Sides","Lying_Face_Down_Plate_Neck_Resistance","Lying_Face_Up_Plate_Neck_Resistance","Thigh_Abductor","Monster_Walk","Glute_Kickback","Standing_Calf_Raises","Romanian_Deadlift","Smith_Machine_Squat","Barbell_Incline_Bench_Press_-_Medium_Grip","Wide-Grip_Lat_Pulldown","Seated_Dumbbell_Press","T-Bar_Row_with_Handle","Dumbbell_Alternate_Bicep_Curl","Adductor","One-Arm_Dumbbell_Row","Leg_Extensions","Goblet_Squat","Incline_Hammer_Curls","Face_Pull","Side_Lateral_Raise","Triceps_Pushdown","Leg_Press","Elliptical_Trainer","Walking_Treadmill","Jogging_Treadmill","Running_Treadmill","Recumbent_Bike","Bicycling_Stationary","Stairmaster","Rowing_Stationary","Rope_Jumping","Step_Mill"]);
 const EXERCISE_LIBRARY = JSON.parse(`[{"id":"Barbell_Ab_Rollout","n":"Rollout abdominal con barra","en":"barbell ab rollout","eq":"barbell","m":"abdominals","c":false},{"id":"Barbell_Ab_Rollout_-_On_Knees","n":"Rollout abdominal con barra (de rodillas)","en":"barbell ab rollout - on knees","eq":"barbell","m":"abdominals","c":false},{"id":"Dumbbell_Side_Bend","n":"Flexión lateral con mancuerna","en":"dumbbell side bend","eq":"dumbbell","m":"abdominals","c":false},{"id":"Spell_Caster","n":"Giro con mancuerna","en":"spell caster","eq":"dumbbell","m":"abdominals","c":false},{"id":"Ab_Crunch_Machine","n":"Máquina de abdominales","en":"ab crunch machine","eq":"machine","m":"abdominals","c":false},{"id":"Smith_Machine_Hip_Raise","n":"Elevación de cadera en Smith","en":"smith machine hip raise","eq":"machine","m":"abdominals","c":false},{"id":"Bosu_Ball_Cable_Crunch_With_Side_Bends","n":"Crunch en polea sobre Bosu con giro","en":"bosu ball cable crunch with side bends","eq":"cable","m":"abdominals","c":false},{"id":"Cable_Crunch","n":"Crunch en polea","en":"cable crunch","eq":"cable","m":"abdominals","c":false},{"id":"3_4_Sit-Up","n":"Abdominal 3/4","en":"3/4 sit-up","eq":"body only","m":"abdominals","c":false},{"id":"Air_Bike","n":"Bicicleta abdominal","en":"air bike","eq":"body only","m":"abdominals","c":false},{"id":"Barbell_Curl","n":"Curl de bíceps con barra","en":"barbell curl","eq":"barbell","m":"biceps","c":false},{"id":"Barbell_Curls_Lying_Against_An_Incline","n":"Curl con barra en banco inclinado","en":"barbell curls lying against an incline","eq":"barbell","m":"biceps","c":false},{"id":"Alternate_Hammer_Curl","n":"Curl martillo alterno","en":"alternate hammer curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Alternate_Incline_Dumbbell_Curl","n":"Curl alterno en banco inclinado","en":"alternate incline dumbbell curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Machine_Bicep_Curl","n":"Curl de bíceps en máquina","en":"machine bicep curl","eq":"machine","m":"biceps","c":false},{"id":"Machine_Preacher_Curls","n":"Curl predicador en máquina","en":"machine preacher curls","eq":"machine","m":"biceps","c":false},{"id":"Cable_Hammer_Curls_-_Rope_Attachment","n":"Curl martillo en polea con cuerda","en":"cable hammer curls - rope attachment","eq":"cable","m":"biceps","c":false},{"id":"Cable_Preacher_Curl","n":"Curl predicador en polea","en":"cable preacher curl","eq":"cable","m":"biceps","c":false},{"id":"Close-Grip_EZ-Bar_Curl_with_Band","n":"Curl con barra Z cerrado y banda","en":"close-grip ez-bar curl with band","eq":"e-z curl bar","m":"biceps","c":false},{"id":"EZ-Bar_Curl","n":"Curl con barra Z","en":"ez-bar curl","eq":"e-z curl bar","m":"biceps","c":false},{"id":"Barbell_Full_Squat","n":"Sentadilla profunda con barra","en":"barbell full squat","eq":"barbell","m":"quadriceps","c":false},{"id":"Barbell_Hack_Squat","n":"Sentadilla hack con barra","en":"barbell hack squat","eq":"barbell","m":"quadriceps","c":false},{"id":"Dumbbell_Lunges","n":"Zancadas con mancuernas","en":"dumbbell lunges","eq":"dumbbell","m":"quadriceps","c":false},{"id":"Dumbbell_Rear_Lunge","n":"Zancada atrás con mancuernas","en":"dumbbell rear lunge","eq":"dumbbell","m":"quadriceps","c":false},{"id":"Chair_Squat","n":"Sentadilla a la silla","en":"chair squat","eq":"machine","m":"quadriceps","c":false},{"id":"Hack_Squat","n":"Sentadilla Hack (máquina)","en":"hack squat","eq":"machine","m":"quadriceps","c":false},{"id":"Cable_Deadlifts","n":"Peso muerto en polea","en":"cable deadlifts","eq":"cable","m":"quadriceps","c":false},{"id":"Cable_Hip_Adduction","n":"Aducción de cadera en polea","en":"cable hip adduction","eq":"cable","m":"quadriceps","c":false},{"id":"Bench_Jump","n":"Salto al banco","en":"bench jump","eq":"body only","m":"quadriceps","c":false},{"id":"Bodyweight_Squat","n":"Sentadilla con peso corporal","en":"bodyweight squat","eq":"body only","m":"quadriceps","c":false},{"id":"Anti-Gravity_Press","n":"Press anti-gravedad con barra","en":"anti-gravity press","eq":"barbell","m":"shoulders","c":false},{"id":"Barbell_Incline_Shoulder_Raise","n":"Elevación de hombro inclinado con barra","en":"barbell incline shoulder raise","eq":"barbell","m":"shoulders","c":false},{"id":"Alternating_Deltoid_Raise","n":"Elevación de deltoides alterna","en":"alternating deltoid raise","eq":"dumbbell","m":"shoulders","c":false},{"id":"Arnold_Dumbbell_Press","n":"Press Arnold con mancuernas","en":"arnold dumbbell press","eq":"dumbbell","m":"shoulders","c":false},{"id":"Leverage_Shoulder_Press","n":"Press de hombro en máquina","en":"leverage shoulder press","eq":"machine","m":"shoulders","c":false},{"id":"Machine_Shoulder_Military_Press","n":"Press militar en máquina","en":"machine shoulder (military) press","eq":"machine","m":"shoulders","c":false},{"id":"Alternating_Cable_Shoulder_Press","n":"Press de hombro alterno en polea","en":"alternating cable shoulder press","eq":"cable","m":"shoulders","c":false},{"id":"Bent_Over_Low-Pulley_Side_Lateral","n":"Elevación lateral inclinado en polea baja","en":"bent over low-pulley side lateral","eq":"cable","m":"shoulders","c":false},{"id":"Handstand_Push-Ups","n":"Flexiones en pino","en":"handstand push-ups","eq":"body only","m":"shoulders","c":false},{"id":"Alternating_Kettlebell_Press","n":"Press alterno con kettlebell","en":"alternating kettlebell press","eq":"kettlebells","m":"shoulders","c":false},{"id":"Barbell_Bench_Press_-_Medium_Grip","n":"Press de banca con barra","en":"barbell bench press - medium grip","eq":"barbell","m":"chest","c":false},{"id":"Barbell_Guillotine_Bench_Press","n":"Press de banca guillotina con barra","en":"barbell guillotine bench press","eq":"barbell","m":"chest","c":false},{"id":"Around_The_Worlds","n":"Vueltas con mancuernas","en":"around the worlds","eq":"dumbbell","m":"chest","c":false},{"id":"Bent-Arm_Dumbbell_Pullover","n":"Pullover con mancuerna","en":"bent-arm dumbbell pullover","eq":"dumbbell","m":"chest","c":false},{"id":"Butterfly","n":"Máquina de aperturas (mariposa)","en":"butterfly","eq":"machine","m":"chest","c":false},{"id":"Decline_Smith_Press","n":"Press declinado en Smith","en":"decline smith press","eq":"machine","m":"chest","c":false},{"id":"Cable_Chest_Press","n":"Press de pecho en polea","en":"cable chest press","eq":"cable","m":"chest","c":false},{"id":"Cable_Crossover","n":"Cruce de poleas","en":"cable crossover","eq":"cable","m":"chest","c":false},{"id":"Clock_Push-Up","n":"Flexión de pecho tipo reloj","en":"clock push-up","eq":"body only","m":"chest","c":false},{"id":"Incline_Push-Up","n":"Flexión de pecho inclinada","en":"incline push-up","eq":"body only","m":"chest","c":false},{"id":"Clean","n":"Cargada (clean)","en":"clean","eq":"barbell","m":"hamstrings","c":false},{"id":"Clean_Deadlift","n":"Peso muerto para cargada","en":"clean deadlift","eq":"barbell","m":"hamstrings","c":false},{"id":"Dumbbell_Clean","n":"Cargada con mancuernas","en":"dumbbell clean","eq":"dumbbell","m":"hamstrings","c":false},{"id":"Stiff-Legged_Dumbbell_Deadlift","n":"Peso muerto piernas rígidas con mancuerna","en":"stiff-legged dumbbell deadlift","eq":"dumbbell","m":"hamstrings","c":false},{"id":"Glute_Ham_Raise","n":"Elevación glúteo-femoral","en":"glute ham raise","eq":"machine","m":"hamstrings","c":false},{"id":"Lying_Leg_Curls","n":"Curl femoral acostado","en":"lying leg curls","eq":"machine","m":"hamstrings","c":false},{"id":"Knee_Tuck_Jump","n":"Salto con rodillas al pecho","en":"knee tuck jump","eq":"body only","m":"hamstrings","c":false},{"id":"Natural_Glute_Ham_Raise","n":"Elevación glúteo-femoral natural","en":"natural glute ham raise","eq":"body only","m":"hamstrings","c":false},{"id":"Alternating_Hang_Clean","n":"Cargada colgante alterna con kettlebell","en":"alternating hang clean","eq":"kettlebells","m":"hamstrings","c":false},{"id":"Double_Kettlebell_Alternating_Hang_Clean","n":"Cargada colgante alterna con dos kettlebells","en":"double kettlebell alternating hang clean","eq":"kettlebells","m":"hamstrings","c":false},{"id":"Bent_Over_Barbell_Row","n":"Remo con barra inclinado","en":"bent over barbell row","eq":"barbell","m":"middle back","c":false},{"id":"Bent_Over_One-Arm_Long_Bar_Row","n":"Remo a un brazo con barra larga","en":"bent over one-arm long bar row","eq":"barbell","m":"middle back","c":false},{"id":"Bent_Over_Two-Dumbbell_Row","n":"Remo con dos mancuernas inclinado","en":"bent over two-dumbbell row","eq":"dumbbell","m":"middle back","c":false},{"id":"Bent_Over_Two-Dumbbell_Row_With_Palms_In","n":"Remo con mancuernas, palmas adentro","en":"bent over two-dumbbell row with palms in","eq":"dumbbell","m":"middle back","c":false},{"id":"Leverage_High_Row","n":"Remo alto en máquina","en":"leverage high row","eq":"machine","m":"middle back","c":false},{"id":"Lying_T-Bar_Row","n":"Remo en T acostado","en":"lying t-bar row","eq":"machine","m":"middle back","c":false},{"id":"Seated_Cable_Rows","n":"Remo sentado en polea","en":"seated cable rows","eq":"cable","m":"middle back","c":false},{"id":"Seated_One-arm_Cable_Pulley_Rows","n":"Remo sentado a un brazo en polea","en":"seated one-arm cable pulley rows","eq":"cable","m":"middle back","c":false},{"id":"Alternating_Kettlebell_Row","n":"Remo alterno con kettlebell","en":"alternating kettlebell row","eq":"kettlebells","m":"middle back","c":false},{"id":"Alternating_Renegade_Row","n":"Remo renegado alterno","en":"alternating renegade row","eq":"kettlebells","m":"middle back","c":false},{"id":"Barbell_Deadlift","n":"Peso muerto con barra","en":"barbell deadlift","eq":"barbell","m":"lower back","c":false},{"id":"Deadlift_with_Bands","n":"Peso muerto con bandas","en":"deadlift with bands","eq":"barbell","m":"lower back","c":false},{"id":"Hyperextensions_With_No_Hyperextension_Bench","n":"Hiperextensión de espalda sin banco","en":"hyperextensions with no hyperextension bench","eq":"body only","m":"lower back","c":false},{"id":"Weighted_Ball_Hyperextension","n":"Hiperextensión con balón con peso","en":"weighted ball hyperextension","eq":"exercise ball","m":"lower back","c":false},{"id":"Atlas_Stone_Trainer","n":"Piedra Atlas (entrenamiento)","en":"atlas stone trainer","eq":"other","m":"lower back","c":false},{"id":"Atlas_Stones","n":"Piedras Atlas","en":"atlas stones","eq":"other","m":"lower back","c":false},{"id":"Barbell_Seated_Calf_Raise","n":"Elevación de talones sentado con barra","en":"barbell seated calf raise","eq":"barbell","m":"calves","c":false},{"id":"Rocking_Standing_Calf_Raise","n":"Elevación de talones de pie (rocking)","en":"rocking standing calf raise","eq":"barbell","m":"calves","c":false},{"id":"Calf_Raise_On_A_Dumbbell","n":"Elevación de talones sobre mancuerna","en":"calf raise on a dumbbell","eq":"dumbbell","m":"calves","c":false},{"id":"Dumbbell_Seated_One-Leg_Calf_Raise","n":"Elevación de talones sentado a una pierna","en":"dumbbell seated one-leg calf raise","eq":"dumbbell","m":"calves","c":false},{"id":"Calf_Press","n":"Prensa de pantorrilla","en":"calf press","eq":"machine","m":"calves","c":false},{"id":"Calf_Press_On_The_Leg_Press_Machine","n":"Pantorrilla en prensa de piernas","en":"calf press on the leg press machine","eq":"machine","m":"calves","c":false},{"id":"Calf_Raises_-_With_Bands","n":"Elevación de talones con banda","en":"calf raises - with bands","eq":"bands","m":"calves","c":false},{"id":"Balance_Board","n":"Tabla de equilibrio","en":"balance board","eq":"other","m":"calves","c":false},{"id":"Donkey_Calf_Raises","n":"Elevación de talones tipo burro","en":"donkey calf raises","eq":"other","m":"calves","c":false},{"id":"Bent-Arm_Barbell_Pullover","n":"Pullover con barra","en":"bent-arm barbell pullover","eq":"barbell","m":"lats","c":false},{"id":"Leverage_Iso_Row","n":"Remo iso en máquina","en":"leverage iso row","eq":"machine","m":"lats","c":false},{"id":"Cable_Incline_Pushdown","n":"Jalón inclinado en polea","en":"cable incline pushdown","eq":"cable","m":"lats","c":false},{"id":"Close-Grip_Front_Lat_Pulldown","n":"Jalón al pecho agarre cerrado","en":"close-grip front lat pulldown","eq":"cable","m":"lats","c":false},{"id":"Chin-Up","n":"Dominada agarre supino","en":"chin-up","eq":"body only","m":"lats","c":false},{"id":"Pullups","n":"Dominadas","en":"pullups","eq":"body only","m":"lats","c":false},{"id":"Catch_and_Overhead_Throw","n":"Recepción y lanzamiento sobre cabeza","en":"catch and overhead throw","eq":"medicine ball","m":"lats","c":false},{"id":"Overhead_Slam","n":"Golpe de balón medicinal sobre cabeza","en":"overhead slam","eq":"medicine ball","m":"lats","c":false},{"id":"Band_Assisted_Pull-Up","n":"Dominada asistida con banda","en":"band assisted pull-up","eq":"other","m":"lats","c":false},{"id":"Gironda_Sternum_Chins","n":"Dominada al esternón","en":"gironda sternum chins","eq":"other","m":"lats","c":false},{"id":"Thigh_Adductor","n":"Máquina de aductor","en":"thigh adductor","eq":"machine","m":"adductors","c":false},{"id":"Lateral_Bound","n":"Salto lateral","en":"lateral bound","eq":"body only","m":"adductors","c":false},{"id":"Band_Hip_Adductions","n":"Aducción de cadera con banda","en":"band hip adductions","eq":"bands","m":"adductors","c":false},{"id":"Lateral_Box_Jump","n":"Salto lateral al cajón","en":"lateral box jump","eq":"other","m":"adductors","c":false},{"id":"Lateral_Cone_Hops","n":"Saltos laterales sobre conos","en":"lateral cone hops","eq":"other","m":"adductors","c":false},{"id":"Bench_Press_-_Powerlifting","n":"Press de banca powerlifting","en":"bench press - powerlifting","eq":"barbell","m":"triceps","c":false},{"id":"Bench_Press_with_Chains","n":"Press de banca con cadenas","en":"bench press with chains","eq":"barbell","m":"triceps","c":false},{"id":"Close-Grip_Dumbbell_Press","n":"Press cerrado con mancuernas","en":"close-grip dumbbell press","eq":"dumbbell","m":"triceps","c":false},{"id":"Decline_Dumbbell_Triceps_Extension","n":"Extensión de tríceps declinado con mancuerna","en":"decline dumbbell triceps extension","eq":"dumbbell","m":"triceps","c":false},{"id":"Dip_Machine","n":"Fondos en máquina","en":"dip machine","eq":"machine","m":"triceps","c":false},{"id":"Machine_Triceps_Extension","n":"Extensión de tríceps en máquina","en":"machine triceps extension","eq":"machine","m":"triceps","c":false},{"id":"Cable_Incline_Triceps_Extension","n":"Extensión de tríceps inclinado en polea","en":"cable incline triceps extension","eq":"cable","m":"triceps","c":false},{"id":"Cable_Lying_Triceps_Extension","n":"Extensión de tríceps acostado en polea","en":"cable lying triceps extension","eq":"cable","m":"triceps","c":false},{"id":"Bench_Dips","n":"Fondos en banco","en":"bench dips","eq":"body only","m":"triceps","c":false},{"id":"Body_Tricep_Press","n":"Press de tríceps con el cuerpo","en":"body tricep press","eq":"body only","m":"triceps","c":false},{"id":"Barbell_Glute_Bridge","n":"Puente de glúteo con barra","en":"barbell glute bridge","eq":"barbell","m":"glutes","c":false},{"id":"Barbell_Hip_Thrust","n":"Hip thrust con barra","en":"barbell hip thrust","eq":"barbell","m":"glutes","c":false},{"id":"One-Legged_Cable_Kickback","n":"Pateo de glúteo en polea a una pierna","en":"one-legged cable kickback","eq":"cable","m":"glutes","c":false},{"id":"Pull_Through","n":"Pull through en polea","en":"pull through","eq":"cable","m":"glutes","c":false},{"id":"Butt_Lift_Bridge","n":"Puente de glúteo","en":"butt lift (bridge)","eq":"body only","m":"glutes","c":false},{"id":"Flutter_Kicks","n":"Patada de tijera","en":"flutter kicks","eq":"body only","m":"glutes","c":false},{"id":"Hip_Extension_with_Bands","n":"Extensión de cadera con banda","en":"hip extension with bands","eq":"bands","m":"glutes","c":false},{"id":"Hip_Lift_with_Band","n":"Elevación de cadera con banda","en":"hip lift with band","eq":"bands","m":"glutes","c":false},{"id":"Downward_Facing_Balance","n":"Equilibrio boca abajo en balón","en":"downward facing balance","eq":"exercise ball","m":"glutes","c":false},{"id":"Physioball_Hip_Bridge","n":"Puente de cadera sobre balón","en":"physioball hip bridge","eq":"exercise ball","m":"glutes","c":false},{"id":"Barbell_Shrug","n":"Encogimiento de hombros con barra","en":"barbell shrug","eq":"barbell","m":"traps","c":false},{"id":"Barbell_Shrug_Behind_The_Back","n":"Encogimiento de hombros con barra por detrás","en":"barbell shrug behind the back","eq":"barbell","m":"traps","c":false},{"id":"Dumbbell_Shrug","n":"Encogimiento de hombros con mancuernas","en":"dumbbell shrug","eq":"dumbbell","m":"traps","c":false},{"id":"Standing_Dumbbell_Upright_Row","n":"Remo al mentón con mancuernas","en":"standing dumbbell upright row","eq":"dumbbell","m":"traps","c":false},{"id":"Calf-Machine_Shoulder_Shrug","n":"Encogimiento de hombros en máquina de pantorrilla","en":"calf-machine shoulder shrug","eq":"machine","m":"traps","c":false},{"id":"Leverage_Shrug","n":"Encogimiento de hombros en máquina","en":"leverage shrug","eq":"machine","m":"traps","c":false},{"id":"Cable_Shrugs","n":"Encogimiento de hombros en polea","en":"cable shrugs","eq":"cable","m":"traps","c":false},{"id":"Upright_Cable_Row","n":"Remo al mentón en polea","en":"upright cable row","eq":"cable","m":"traps","c":false},{"id":"Kettlebell_Sumo_High_Pull","n":"Tirón alto sumo con kettlebell","en":"kettlebell sumo high pull","eq":"kettlebells","m":"traps","c":false},{"id":"Upright_Row_-_With_Bands","n":"Remo al mentón con banda","en":"upright row - with bands","eq":"bands","m":"traps","c":false},{"id":"Finger_Curls","n":"Curl de dedos con barra","en":"finger curls","eq":"barbell","m":"forearms","c":false},{"id":"Palms-Down_Wrist_Curl_Over_A_Bench","n":"Curl de muñeca palmas abajo en banco","en":"palms-down wrist curl over a bench","eq":"barbell","m":"forearms","c":false},{"id":"Dumbbell_Lying_Pronation","n":"Pronación acostado con mancuerna","en":"dumbbell lying pronation","eq":"dumbbell","m":"forearms","c":false},{"id":"Dumbbell_Lying_Supination","n":"Supinación acostado con mancuerna","en":"dumbbell lying supination","eq":"dumbbell","m":"forearms","c":false},{"id":"Cable_Wrist_Curl","n":"Curl de muñeca en polea","en":"cable wrist curl","eq":"cable","m":"forearms","c":false},{"id":"Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl","n":"Curl de muñeca sentado en polea baja","en":"seated two-arm palms-up low-pulley wrist curl","eq":"cable","m":"forearms","c":false},{"id":"Bottoms-Up_Clean_From_The_Hang_Position","n":"Cargada invertida con kettlebell","en":"bottoms-up clean from the hang position","eq":"kettlebells","m":"forearms","c":false},{"id":"Farmers_Walk","n":"Caminata del granjero","en":"farmer's walk","eq":"other","m":"forearms","c":false},{"id":"Plate_Pinch","n":"Pinza de disco","en":"plate pinch","eq":"other","m":"forearms","c":false},{"id":"Isometric_Neck_Exercise_-_Front_And_Back","n":"Ejercicio isométrico de cuello (frente y atrás)","en":"isometric neck exercise - front and back","eq":"body only","m":"neck","c":false},{"id":"Isometric_Neck_Exercise_-_Sides","n":"Ejercicio isométrico de cuello (lados)","en":"isometric neck exercise - sides","eq":"body only","m":"neck","c":false},{"id":"Lying_Face_Down_Plate_Neck_Resistance","n":"Resistencia de cuello boca abajo con disco","en":"lying face down plate neck resistance","eq":"other","m":"neck","c":false},{"id":"Lying_Face_Up_Plate_Neck_Resistance","n":"Resistencia de cuello boca arriba con disco","en":"lying face up plate neck resistance","eq":"other","m":"neck","c":false},{"id":"Thigh_Abductor","n":"Máquina de abductor","en":"thigh abductor","eq":"machine","m":"abductors","c":false},{"id":"Monster_Walk","n":"Caminata lateral con banda","en":"monster walk","eq":"bands","m":"abductors","c":false},{"id":"Glute_Kickback","n":"Pateo de glúteo","en":"glute kickback","eq":"body only","m":"glutes","c":false},{"id":"Standing_Calf_Raises","n":"Elevación de talones de pie","en":"standing calf raises","eq":"machine","m":"calves","c":false},{"id":"Romanian_Deadlift","n":"Peso muerto rumano","en":"romanian deadlift","eq":"barbell","m":"hamstrings","c":false},{"id":"Smith_Machine_Squat","n":"Sentadilla en máquina Smith","en":"smith machine squat","eq":"machine","m":"quadriceps","c":false},{"id":"Barbell_Incline_Bench_Press_-_Medium_Grip","n":"Press inclinado con barra","en":"barbell incline bench press - medium grip","eq":"barbell","m":"chest","c":false},{"id":"Wide-Grip_Lat_Pulldown","n":"Jalón al pecho agarre abierto","en":"wide-grip lat pulldown","eq":"cable","m":"lats","c":false},{"id":"Seated_Dumbbell_Press","n":"Press militar sentado con mancuerna","en":"seated dumbbell press","eq":"dumbbell","m":"shoulders","c":false},{"id":"T-Bar_Row_with_Handle","n":"Remo en T con agarre","en":"t-bar row with handle","eq":"barbell","m":"middle back","c":false},{"id":"Dumbbell_Alternate_Bicep_Curl","n":"Curl de bíceps alterno con mancuerna","en":"dumbbell alternate bicep curl","eq":"dumbbell","m":"biceps","c":false},{"id":"Adductor","n":"Aductor con rodillo","en":"adductor","eq":"foam roll","m":"adductors","c":false},{"id":"One-Arm_Dumbbell_Row","n":"Remo a un brazo con mancuerna","en":"one-arm dumbbell row","eq":"dumbbell","m":"middle back","c":false},{"id":"Leg_Extensions","n":"Extensión de rodilla (máquina)","en":"leg extensions","eq":"machine","m":"quadriceps","c":false},{"id":"Goblet_Squat","n":"Sentadilla Goblet","en":"goblet squat","eq":"kettlebells","m":"quadriceps","c":false},{"id":"Incline_Hammer_Curls","n":"Curl martillo en banco inclinado","en":"incline hammer curls","eq":"dumbbell","m":"biceps","c":false},{"id":"Face_Pull","n":"Face pull","en":"face pull","eq":"cable","m":"shoulders","c":false},{"id":"Side_Lateral_Raise","n":"Elevación lateral","en":"side lateral raise","eq":"dumbbell","m":"shoulders","c":false},{"id":"Triceps_Pushdown","n":"Extensión de tríceps en polea","en":"triceps pushdown","eq":"cable","m":"triceps","c":false},{"id":"Leg_Press","n":"Prensa de piernas","en":"leg press","eq":"machine","m":"quadriceps","c":false},{"id":"Elliptical_Trainer","n":"Elíptica","en":"elliptical trainer","eq":"machine","m":"cardio","c":true},{"id":"Walking_Treadmill","n":"Caminadora (caminar)","en":"walking, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Jogging_Treadmill","n":"Caminadora (trote suave)","en":"jogging, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Running_Treadmill","n":"Caminadora (correr)","en":"running, treadmill","eq":"machine","m":"cardio","c":true},{"id":"Recumbent_Bike","n":"Bicicleta reclinada","en":"recumbent bike","eq":"machine","m":"cardio","c":true},{"id":"Bicycling_Stationary","n":"Bicicleta estática","en":"bicycling, stationary","eq":"machine","m":"cardio","c":true},{"id":"Stairmaster","n":"Escaladora","en":"stairmaster","eq":"machine","m":"cardio","c":true},{"id":"Rowing_Stationary","n":"Remo estático","en":"rowing, stationary","eq":"machine","m":"cardio","c":true},{"id":"Rope_Jumping","n":"Salto de cuerda","en":"rope jumping","eq":"other","m":"cardio","c":true},{"id":"Step_Mill","n":"Escaladora de step","en":"step mill","eq":"machine","m":"cardio","c":true}]`);
 const EQUIPMENT_LABEL = {
@@ -767,7 +776,7 @@ function ConfirmModal({
     className: "font-semibold mb-2",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif"
+      fontFamily: "Plus Jakarta Sans, sans-serif"
     }
   }, title), /*#__PURE__*/React.createElement("p", {
     className: "text-sm mb-5",
@@ -833,7 +842,7 @@ function ZoomModal({
     className: "mt-4 text-center font-semibold",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif",
+      fontFamily: "Plus Jakarta Sans, sans-serif",
       fontSize: "17px"
     }
   }, exercise.name), /*#__PURE__*/React.createElement("p", {
@@ -1134,13 +1143,13 @@ function ExerciseCard({
       background: C.surfaceAlt,
       color: C.text,
       border: `1px solid ${C.border}`,
-      fontFamily: "Space Grotesk, sans-serif"
+      fontFamily: "Plus Jakarta Sans, sans-serif"
     }
   }) : /*#__PURE__*/React.createElement("p", {
     className: "font-semibold leading-tight mb-1",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif",
+      fontFamily: "Plus Jakarta Sans, sans-serif",
       fontSize: "15px"
     }
   }, exercise.name), /*#__PURE__*/React.createElement("div", {
@@ -1354,7 +1363,7 @@ function StatsView({
     className: "font-semibold",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif",
+      fontFamily: "Plus Jakarta Sans, sans-serif",
       fontSize: "17px"
     }
   }, "Tu progreso")), items.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -1396,7 +1405,7 @@ function StatsView({
   }, it.name)), it.delta !== null && /*#__PURE__*/React.createElement("span", {
     className: "text-xs font-semibold flex-shrink-0",
     style: {
-      color: it.delta > 0 ? "#47F2D0" : C.textFaint
+      color: it.delta > 0 ? "#7cf2ae" : C.textFaint
     }
   }, it.delta > 0 ? "▲" : it.delta < 0 ? "▼" : "–", " ", Math.abs(it.delta), " ", it.unit)), /*#__PURE__*/React.createElement("p", {
     className: "text-xs mb-2",
@@ -1451,7 +1460,7 @@ const SUPABASE_READY = Boolean(window.supabase && /^https:\/\/[a-z0-9-]+\.supaba
 const supabaseClient = SUPABASE_READY ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 }) : null;
-const emptyRoutine = () => DEFAULT_ROUTINE.map(day => ({ ...day, exercises: [] }));
+const emptyRoutine = () => DEFAULT_ROUTINE.map(day => ({ ...day, group: "Sin ejercicios", note: "", exercises: [] }));
 async function readCloudSnapshot(userId) {
   const { data, error } = await supabaseClient.from("memoset_user_data").select("routine,logs").eq("user_id", userId).maybeSingle();
   if (error) throw error;
@@ -1496,12 +1505,12 @@ function AuthGate({ knownProfiles, storageOk, onChooseLocal, onSignIn, onSignUp,
     } finally { setBusy(false); }
   };
   const fieldStyle = { background: C.surface, color: C.text, border: `1px solid ${C.border}`, width: "100%", boxSizing: "border-box" };
-  return React.createElement("div", { className: "login-screen min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "DM Sans, sans-serif" } },
+  return React.createElement("div", { className: "login-screen min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "Inter, sans-serif" } },
     React.createElement("style", null, `@import url('${FONT_LINK}');`),
     React.createElement("div", { className: "w-full", style: { maxWidth: 420 } },
       React.createElement("div", { className: "flex flex-col items-center mb-5" },
         React.createElement("div", { className: "brand-mark login-mark w-14 h-14 rounded-2xl flex items-center justify-center mb-3" }, React.createElement("img", { src: "MemoSet.png", alt: "Logo Memo Set", className: "brand-logo" })),
-        React.createElement("p", { className: "brand-lockup font-semibold", style: { color: C.text, fontFamily: "Space Grotesk, sans-serif", fontSize: 30 } }, React.createElement(React.Fragment, null, "Memo ", React.createElement("span", { style: { color: "#3BE98F" } }, "Set"))),
+        React.createElement("p", { className: "brand-lockup font-semibold", style: { color: C.text, fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 30 } }, React.createElement(React.Fragment, null, "Memo", React.createElement("span", { style: { color: "#2FE07A" } }, "Set"))),
         React.createElement("p", { className: "brand-tagline text-sm text-center mt-1" }, "Remember where you left off.")),
       !storageOk && React.createElement("p", { className: "text-xs mb-3 text-center", style: { color: C.danger } }, "Este navegador podría no conservar datos locales."),
       React.createElement("section", { className: "rounded-2xl p-4 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
@@ -1511,7 +1520,7 @@ function AuthGate({ knownProfiles, storageOk, onChooseLocal, onSignIn, onSignUp,
         React.createElement("form", { onSubmit: submit, className: "space-y-3" },
           React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Correo electrónico", React.createElement("input", { type: "email", autoComplete: "email", required: true, value: email, onChange: e => setEmail(e.target.value), placeholder: "tu@correo.com", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
           React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Contraseña", React.createElement("input", { type: "password", autoComplete: mode === "signup" ? "new-password" : "current-password", required: true, minLength: mode === "signup" ? 8 : undefined, value: password, onChange: e => setPassword(e.target.value), placeholder: "Al menos 8 caracteres", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
-          React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, busy ? "Un momento…" : mode === "signup" ? "Crear cuenta y empezar" : "Entrar")),
+          React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#7cf2ae)", color: "#06231A" } }, busy ? "Un momento…" : mode === "signup" ? "Crear cuenta y empezar" : "Entrar")),
         mode === "signin" && React.createElement("button", { type: "button", onClick: async () => { if (!cloudConfigured) { setMessage("La recuperación por correo estará disponible cuando conectemos el servicio de cuentas."); return; } if (!email.trim()) { setMessage("Escribe tu correo y te enviaremos el enlace para restablecer la contraseña."); return; } try { const result = await onResetPassword(email.trim()); setMessage(result || "Si existe una cuenta con ese correo, recibirás instrucciones."); } catch (e) { setMessage(friendlyAuthError(e)); } }, className: "text-xs mt-3 underline", style: { color: C.textFaint } }, "Olvidé mi contraseña"),
         message && React.createElement("p", { role: "status", className: "text-xs mt-3 leading-relaxed", style: { color: message.toLowerCase().includes("no se pudo") || message.toLowerCase().includes("inválid") ? C.danger : C.brassLight } }, message),
         !cloudConfigured && React.createElement("p", { className: "text-xs mt-3 leading-relaxed", style: { color: C.textFaint } }, "Para activar cuentas y sincronización entre dispositivos falta conectar el servicio seguro de Memo Set.")),
@@ -1536,13 +1545,13 @@ function PasswordRecoveryGate({ onUpdatePassword, onCancel }) {
     catch (error) { setMessage(friendlyAuthError(error)); }
     finally { setBusy(false); }
   };
-  return React.createElement("div", { className: "min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "DM Sans, sans-serif" } },
+  return React.createElement("div", { className: "min-h-screen flex items-center justify-center px-6", style: { background: C.bg, fontFamily: "Inter, sans-serif" } },
     React.createElement("section", { className: "w-full rounded-2xl p-5", style: { maxWidth: 420, background: C.surface, border: `1px solid ${C.borderSoft}` } },
       React.createElement("div", { className: "flex items-center gap-3 mb-4" }, React.createElement("img", { src: "MemoSet.png", alt: "", className: "brand-logo w-12 h-12 rounded-xl" }), React.createElement("div", null, React.createElement("h1", { className: "text-xl font-semibold", style: { color: C.text } }, "Nueva contraseña"), React.createElement("p", { className: "text-xs", style: { color: C.textFaint } }, "Elige una clave segura para Memo Set."))),
       React.createElement("form", { onSubmit: submit, className: "space-y-3" },
         React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Nueva contraseña", React.createElement("input", { type: "password", autoComplete: "new-password", minLength: 8, required: true, value: password, onChange: e => setPassword(e.target.value), placeholder: "Al menos 8 caracteres", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
         React.createElement("label", { className: "block text-xs", style: { color: C.textDim } }, "Repite la contraseña", React.createElement("input", { type: "password", autoComplete: "new-password", minLength: 8, required: true, value: confirmation, onChange: e => setConfirmation(e.target.value), placeholder: "Confirma tu nueva contraseña", className: "mt-1 rounded-lg px-3 py-2.5 text-sm outline-none", style: fieldStyle })),
-        React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, busy ? "Guardando…" : "Guardar contraseña")),
+        React.createElement("button", { type: "submit", disabled: busy, className: "w-full rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50", style: { background: "linear-gradient(120deg,#19d887,#7cf2ae)", color: "#06231A" } }, busy ? "Guardando…" : "Guardar contraseña")),
       message && React.createElement("p", { role: "status", className: "text-xs mt-3", style: { color: C.brassLight } }, message),
       React.createElement("button", { type: "button", onClick: onCancel, className: "text-xs underline mt-4", style: { color: C.textFaint } }, "Cancelar y cerrar sesión")));
 }
@@ -1598,6 +1607,43 @@ function storageSelfTest() {
     return false;
   }
 }
+
+const WEEK = [["lunes","LUN","Lunes"],["martes","MAR","Martes"],["miercoles","MIÉ","Miércoles"],["jueves","JUE","Jueves"],["viernes","VIE","Viernes"],["sabado","SÁB","Sábado"],["domingo","DOM","Domingo"]];
+const SESSIONS = {
+  inf: { g: "Pierna · Glúteo", x: [["Sentadilla en Smith","Máquina","Smith_Machine_Squat",[12,12,10,10]],["Hip thrust","Barra","Barbell_Hip_Thrust",[12,12,10,10]],["Peso muerto rumano","Barra","Romanian_Deadlift",[12,12,10]],["Curl femoral","Máquina","Lying_Leg_Curls",[12,12,12]],["Pantorrillas de pie","Máquina","Standing_Calf_Raises",[15,15,15]]] },
+  sup: { g: "Tren superior", x: [["Press de banca","Barra","Barbell_Bench_Press_-_Medium_Grip",[12,10,10,8]],["Jalón al pecho","Polea","Wide-Grip_Lat_Pulldown",[12,12,10,10]],["Remo sentado","Polea","Seated_Cable_Rows",[12,12,10]],["Press de hombro","Mancuerna","Seated_Dumbbell_Press",[12,10,10]],["Tríceps en polea","Polea","Triceps_Pushdown",[15,12,12]]] },
+  leg: { g: "Pierna", x: [["Prensa de piernas","Máquina","Leg_Press",[15,12,12,10]],["Sentadilla en Smith","Máquina","Smith_Machine_Squat",[12,12,10]],["Extensión de rodilla","Máquina","Leg_Extensions",[15,12,12]],["Curl femoral","Máquina","Lying_Leg_Curls",[12,12,12]],["Pantorrillas de pie","Máquina","Standing_Calf_Raises",[15,15,15]]] },
+  push: { g: "Pecho · Hombro · Tríceps", x: [["Press de banca","Barra","Barbell_Bench_Press_-_Medium_Grip",[12,10,10,8]],["Cruce de poleas","Polea","Cable_Crossover",[15,12,12]],["Press de hombro","Mancuerna","Seated_Dumbbell_Press",[12,10,10]],["Elevación lateral","Mancuerna","Side_Lateral_Raise",[15,12,12]],["Tríceps en polea","Polea","Triceps_Pushdown",[15,12,12]]] },
+  pull: { g: "Espalda · Bíceps", x: [["Jalón al pecho","Polea","Wide-Grip_Lat_Pulldown",[12,12,10,10]],["Remo sentado","Polea","Seated_Cable_Rows",[12,12,10]],["Remo a un brazo","Mancuerna","One-Arm_Dumbbell_Row",[12,12,10]],["Face pull","Polea","Face_Pull",[15,15,12]],["Curl de bíceps","Mancuerna","Dumbbell_Alternate_Bicep_Curl",[12,12,10]]] },
+  glu: { g: "Glúteo · Femoral", x: [["Hip thrust","Barra","Barbell_Hip_Thrust",[12,12,10,10]],["Peso muerto rumano","Barra","Romanian_Deadlift",[12,12,10]],["Patada de glúteo en polea","Polea","One-Legged_Cable_Kickback",[15,12,12]],["Abductor","Máquina","Thigh_Abductor",[15,15,15]],["Curl femoral","Máquina","Lying_Leg_Curls",[12,12,12]]] }
+};
+const PLAN_DAYS = { 2: [["lunes","inf"],["jueves","sup"]], 3: [["lunes","leg"],["miercoles","push"],["viernes","pull"]], 4: [["lunes","inf"],["martes","sup"],["jueves","glu"],["viernes","pull"]] };
+const PLAN_DESC = { 2: "Tren inferior y tren superior, con días de recuperación entre sesiones.", 3: "Pierna, empuje (pecho y hombro) y tirón (espalda y bíceps).", 4: "Pierna y glúteo, tren superior, glúteo y femoral, y espalda.", 5: "Plan clásico por grupos musculares, de lunes a viernes." };
+const REST_ACTIVITIES = [["Caminata","De 30 a 45 minutos a ritmo cómodo, mejor al aire libre."],["Trote suave","De 20 a 30 minutos, o alterna 2 min de trote con 1 min de caminata."],["Otro deporte","Natación, ciclismo, baile, fútbol, patinaje o yoga: lo que disfrutes y te mantenga en movimiento."]];
+const FOOD_TIPS = ["Incluye proteína en cada comida: huevo, pollo, pescado, legumbres o lácteos.","Llena la mitad del plato con verduras y frutas variadas.","Elige carbohidratos de calidad como arroz, papa, avena, plátano o yuca, según tu energía del día.","Toma agua durante el día y duerme entre 7 y 9 horas para recuperarte."];
+function buildSuggestedWeek(n) {
+  const stamp = Date.now(); let rest = 0;
+  return WEEK.map(([id, short, label]) => {
+    if (n === 5) { const d = DEFAULT_ROUTINE.find(x => x.id === id); if (d) return deepClone(d); }
+    const hit = (PLAN_DAYS[n] || []).find(p => p[0] === id);
+    if (hit) { const s = SESSIONS[hit[1]]; return { id, short, label, group: s.g, color: C.brass, note: "", exercises: s.x.map((e, i) => ex(`s-${id}-${i}-${stamp}`, e[0], e[1], e[2], "1 min", e[3])) }; }
+    return { id, short, label, group: "Descanso activo", color: C.brassLight, note: "", exercises: [], rest: true, featured: rest++ % 3 };
+  });
+}
+function RestDayPanel({ day, onAdd }) {
+  const h = React.createElement;
+  return h("div", { className: "rest-panel rounded-2xl p-5 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
+    h("h2", { className: "text-lg font-semibold mb-1", style: { color: C.text, fontFamily: "Plus Jakarta Sans, sans-serif" } }, "Día de recuperación activa"),
+    h("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Hoy tu cuerpo se recupera. Muévete suave y come bien: así rindes más en tus días de entrenamiento."),
+    h("p", { className: "text-xs font-semibold mb-2", style: { color: C.brassLight } }, "Movimiento sugerido"),
+    REST_ACTIVITIES.map((a, i) => h("div", { key: a[0], className: "rounded-xl p-3 mb-2", style: { background: i === day.featured ? "rgba(47,224,122,.12)" : C.surfaceAlt, border: `1px solid ${i === day.featured ? C.brass : C.borderSoft}` } },
+      h("p", { className: "text-sm font-semibold", style: { color: C.text } }, a[0] + (i === day.featured ? " · sugerencia de hoy" : "")),
+      h("p", { className: "text-xs mt-0.5", style: { color: C.textDim } }, a[1]))),
+    h("p", { className: "text-xs font-semibold mt-4 mb-2", style: { color: C.brassLight } }, "Alimentación adecuada"),
+    h("ul", { className: "text-sm list-none pl-0", style: { color: C.textDim } }, FOOD_TIPS.map(f => h("li", { key: f, className: "mb-1" }, "• " + f))),
+    h("p", { className: "text-xs mt-3", style: { color: C.textFaint } }, "Es una guía general. Si tienes alguna condición de salud, consulta con un profesional."),
+    h("button", { onClick: onAdd, className: "w-full rounded-xl py-3 text-sm font-semibold mt-4", style: { background: C.surfaceAlt, color: C.brassLight, border: `1px solid ${C.border}` } }, "Prefiero entrenar este día"));
+}
 function WorkoutApp() {
   const [profile, setProfile] = useState(() => loadActiveProfile());
   const [cloudUserId, setCloudUserId] = useState("");
@@ -1620,6 +1666,8 @@ function WorkoutApp() {
   const [toast, setToast] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailMsg, setEmailMsg] = useState("");
   const [showStats, setShowStats] = useState(false);
   const [storageOk, setStorageOk] = useState(true);
   const logsSaveTimer = useRef(null);
@@ -1809,20 +1857,13 @@ function WorkoutApp() {
     return "Si existe una cuenta con ese correo, recibirás instrucciones para restablecer la contraseña.";
   };
   const makeQuickRoutine = () => {
-    const workoutTemplates = DEFAULT_ROUTINE.filter(day => day.exercises?.length);
-    if (!workoutTemplates.length) return;
-    const fresh = DEFAULT_ROUTINE.map((day, dayIndex) => {
-      if (dayIndex >= quickRoutineDays) return { ...day, exercises: [] };
-      const template = workoutTemplates[dayIndex % workoutTemplates.length];
-      const exercises = deepClone(template.exercises.slice(0, 4)).map((exercise, exerciseIndex) => ({ ...exercise, id: `quick-${day.id}-${exerciseIndex}-${Date.now()}` }));
-      return { ...day, exercises };
-    });
+    const fresh = buildSuggestedWeek(quickRoutineDays);
     setRoutine(fresh);
     setActiveDay(fresh.find(day => day.exercises.length)?.id || fresh[0].id);
     setShowQuickRoutine(false);
     setEditMode(false);
     persistRoutine(fresh);
-    setToast(`Rutina rápida lista: ${quickRoutineDays} días para que la adaptes.`);
+    setToast(`Rutina sugerida de ${quickRoutineDays} días lista: puedes ajustarla a tu gusto.`);
     setTimeout(() => setToast(null), 2800);
   };
   const signOutCloud = async () => {
@@ -2091,15 +2132,39 @@ function WorkoutApp() {
       total: currentDay.exercises.length
     };
   }, [currentDay, todayInputs]);
-  const emptyDayPanel = currentDay && currentDay.exercises.length === 0 ? React.createElement("div", { className: "empty-day-panel rounded-2xl p-5 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
-    React.createElement("div", { className: "w-11 h-11 rounded-xl flex items-center justify-center mb-3", style: { background: "rgba(25,245,154,.1)", color: C.brass } }, React.createElement(Dumbbell, { size: 21 })),
-    React.createElement("h2", { className: "text-lg font-semibold mb-1", style: { color: C.text, fontFamily: "Space Grotesk, sans-serif" } }, "Este día empieza contigo"),
-    React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Agrega ejercicios a tu gusto o crea una rutina rápida para tener un punto de partida."),
+  const emptyDayPanel = currentDay && currentDay.rest && currentDay.exercises.length === 0 ? React.createElement(RestDayPanel, { day: currentDay, onAdd: () => { setEditMode(true); setShowAddForm(true); } }) : currentDay && currentDay.exercises.length === 0 ? React.createElement("div", { className: "empty-day-panel rounded-2xl p-5 mb-4", style: { background: C.surface, border: `1px solid ${C.borderSoft}` } },
+    React.createElement("div", { className: "w-11 h-11 rounded-xl flex items-center justify-center mb-3", style: { background: "rgba(47,224,122,.1)", color: C.brass } }, React.createElement(Dumbbell, { size: 21 })),
+    React.createElement("h2", { className: "text-lg font-semibold mb-1", style: { color: C.text, fontFamily: "Plus Jakarta Sans, sans-serif" } }, "Este día empieza contigo"),
+    React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Elige tus ejercicios o deja que te sugiramos una rutina según los días que quieras entrenar."),
     React.createElement("div", { className: "flex flex-col gap-2" },
-      React.createElement("button", { onClick: () => { setEditMode(true); setShowAddForm(true); }, className: "rounded-xl py-3 text-sm font-semibold", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, "＋ Elegir ejercicios"),
-      React.createElement("button", { onClick: () => setShowQuickRoutine(true), className: "rounded-xl py-3 text-sm font-semibold", style: { background: C.surfaceAlt, color: C.brassLight, border: `1px solid ${C.border}` } }, "Generar rutina rápida"))) : null;
+      React.createElement("button", { onClick: () => { setEditMode(true); setShowAddForm(true); }, className: "rounded-xl py-3 text-sm font-semibold", style: { background: "linear-gradient(120deg,#19d887,#7cf2ae)", color: "#06231A" } }, "＋ Elegir ejercicios"),
+      React.createElement("button", { onClick: () => setShowQuickRoutine(true), className: "rounded-xl py-3 text-sm font-semibold", style: { background: C.surfaceAlt, color: C.brassLight, border: `1px solid ${C.border}` } }, "Ver rutinas sugeridas"))) : null;
+  const updateEmail = async () => {
+    const email = newEmail.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { setEmailMsg("Escribe un correo válido."); return; }
+    try {
+      const { error } = await supabaseClient.auth.updateUser({ email }, { emailRedirectTo: window.location.href });
+      if (error) throw error;
+      setEmailMsg("Te enviamos un correo de confirmación. Sigue el enlace para completar el cambio.");
+      setNewEmail("");
+    } catch (e) { setEmailMsg(friendlyAuthError(e)); }
+  };
+  const goTab = tab => {
+    if (tab !== "rutina" && editMode) toggleEdit();
+    setShowStats(tab === "progreso");
+    setShowInfo(tab === "perfil");
+    if (tab === "rutina" && !editMode) toggleEdit();
+  };
+  const curTab = showStats ? "progreso" : showInfo ? "perfil" : editMode ? "rutina" : "entrenar";
+  const tabsEl = React.createElement("div", { className: "app-tabs" }, [["entrenar", "Entrenar", Dumbbell], ["progreso", "Progreso", TrendingUp], ["rutina", "Rutina", Pencil], ["perfil", "Perfil", Info]].map(([k, l, I]) => React.createElement("button", { key: k, onClick: () => goTab(k), className: "app-tab" + (curTab === k ? " on" : "") }, React.createElement(I, { size: 15 }), l)));
+  const accountEl = cloudUserId ? React.createElement("div", { className: "mb-4 rounded-xl p-3", style: { background: C.surfaceAlt, border: `1px solid ${C.borderSoft}` } },
+    React.createElement("p", { className: "text-xs", style: { color: C.textFaint } }, "Tu cuenta"),
+    React.createElement("p", { className: "text-sm font-semibold mb-2", style: { color: C.text, wordBreak: "break-all" } }, (cloudSession && cloudSession.user && cloudSession.user.email) || profile),
+    React.createElement("input", { type: "email", value: newEmail, onChange: e => setNewEmail(e.target.value), placeholder: "Nuevo correo", className: "w-full rounded-lg px-3 py-2 text-sm mb-2", style: { background: C.bg, color: C.text, border: `1px solid ${C.border}` } }),
+    React.createElement("button", { onClick: updateEmail, className: "w-full rounded-lg py-2 text-sm font-semibold", style: { background: C.surface, color: C.brassLight, border: `1px solid ${C.border}` } }, "Cambiar correo"),
+    emailMsg && React.createElement("p", { className: "text-xs mt-2", style: { color: C.textDim } }, emailMsg)) : React.createElement("p", { className: "text-xs mb-4", style: { color: C.textFaint } }, "Perfil local: " + profile + ". Crea una cuenta con correo para guardar tu progreso en la nube.");
   if (!authChecked) {
-    return React.createElement("div", { className: "min-h-screen flex items-center justify-center", style: { background: C.bg, color: C.textDim, fontFamily: "DM Sans, sans-serif" } }, "Verificando tu sesión segura…");
+    return React.createElement("div", { className: "min-h-screen flex items-center justify-center", style: { background: C.bg, color: C.textDim, fontFamily: "Inter, sans-serif" } }, "Verificando tu sesión segura…");
   }
   if (passwordRecovery && supabaseClient) {
     return React.createElement(PasswordRecoveryGate, {
@@ -2133,7 +2198,7 @@ function WorkoutApp() {
     }), /*#__PURE__*/React.createElement("span", {
       style: {
         color: C.textDim,
-        fontFamily: "DM Sans, sans-serif"
+        fontFamily: "Inter, sans-serif"
       },
       className: "text-sm"
     }, "Cargando tu rutina…")));
@@ -2142,7 +2207,7 @@ function WorkoutApp() {
     className: "app-shell min-h-screen pb-24",
     style: {
       background: C.bg,
-      fontFamily: "DM Sans, sans-serif"
+      fontFamily: "Inter, sans-serif"
     }
   }, /*#__PURE__*/React.createElement("style", null, `
         @import url('${FONT_LINK}');
@@ -2174,11 +2239,11 @@ function WorkoutApp() {
     className: "brand-lockup font-semibold leading-none",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif",
+      fontFamily: "Plus Jakarta Sans, sans-serif",
       fontSize: "17px",
       letterSpacing: "0.3px"
     }
-  }, React.createElement(React.Fragment, null, "Memo ", React.createElement("span", { style: { color: "#3BE98F" } }, "Set"))), /*#__PURE__*/React.createElement("p", {
+  }, React.createElement(React.Fragment, null, "Memo", React.createElement("span", { style: { color: "#2FE07A" } }, "Set"))), /*#__PURE__*/React.createElement("p", {
     className: "text-xs mt-0.5",
     style: {
       color: C.textFaint
@@ -2212,7 +2277,7 @@ function WorkoutApp() {
     size: 16
   }) : /*#__PURE__*/React.createElement(Pencil, {
     size: 15
-  })))), !showStats && /*#__PURE__*/React.createElement("div", {
+  })))), tabsEl, !showStats && /*#__PURE__*/React.createElement("div", {
     className: "day-nav flex gap-2 mt-4 overflow-x-auto pb-1"
   }, routine.map(day => {
     const active = day.id === activeDay;
@@ -2222,14 +2287,14 @@ function WorkoutApp() {
       className: `day-tab${active ? " active" : ""} flex-shrink-0 rounded-xl px-3 py-2 text-left`,
       style: {
         background: active ? C.surfaceAlt : C.surface,
-        border: `1px solid ${active ? "#19F59A" : C.borderSoft}`,
+        border: `1px solid ${active ? "#2fe07a" : C.borderSoft}`,
         minWidth: 76
       }
     }, /*#__PURE__*/React.createElement("p", {
       className: "text-xs font-bold",
       style: {
-        color: active ? "#47F2D0" : C.text,
-        fontFamily: "Space Grotesk, sans-serif"
+        color: active ? "#7cf2ae" : C.text,
+        fontFamily: "Plus Jakarta Sans, sans-serif"
       }
     }, day.short), /*#__PURE__*/React.createElement("p", {
       className: "mt-0.5 leading-tight",
@@ -2238,7 +2303,7 @@ function WorkoutApp() {
         maxWidth: 90,
         fontSize: "10px"
       }
-    }, day.group));
+    }, (day.exercises.length || day.rest) ? day.group : "Sin ejercicios"));
   }))), !showStats && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "px-4 pt-3"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2332,7 +2397,7 @@ function WorkoutApp() {
     style: {
       background: currentDay.color,
       color: "#06231A",
-      fontFamily: "Space Grotesk, sans-serif"
+      fontFamily: "Plus Jakarta Sans, sans-serif"
     }
   }, /*#__PURE__*/React.createElement(Save, {
     size: 16
@@ -2366,14 +2431,14 @@ function WorkoutApp() {
     className: "font-semibold",
     style: {
       color: C.text,
-      fontFamily: "Space Grotesk, sans-serif"
+      fontFamily: "Plus Jakarta Sans, sans-serif"
     }
-  }, "Cómo funciona"), /*#__PURE__*/React.createElement("button", {
+  }, "Tu perfil e información"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowInfo(false)
   }, /*#__PURE__*/React.createElement(X, {
     size: 18,
     color: C.textDim
-  }))), /*#__PURE__*/React.createElement("ul", {
+  }))), accountEl, /*#__PURE__*/React.createElement("ul", {
     className: "text-sm space-y-2 list-none pl-0",
     style: {
       color: C.textDim
@@ -2390,7 +2455,7 @@ function WorkoutApp() {
   rel: "noopener noreferrer",
   className: "w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold mt-3",
   style: {
-    background: "linear-gradient(135deg, #19D887, #47F2D0)",
+    background: "linear-gradient(135deg, #19D887, #7cf2ae)",
     color: "#06231A"
   }
 }, "☕ Invítame un café (PayPal)"), /*#__PURE__*/React.createElement(React.Fragment, null, !storageOk && /*#__PURE__*/React.createElement("div", {
@@ -2443,7 +2508,7 @@ function WorkoutApp() {
     }
   }, /*#__PURE__*/React.createElement(UserIcon, {
     size: 14
-  }), cloudUserId ? "Cerrar sesión" : `Cambiar de usuario (${profile})`))), showQuickRoutine && React.createElement("div", { className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4", style: { background: "rgba(0,0,0,.7)" }, onClick: () => setShowQuickRoutine(false) }, React.createElement("section", { className: "w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5", style: { background: C.surface, border: `1px solid ${C.border}` }, onClick: e => e.stopPropagation() }, React.createElement("h2", { className: "text-lg font-semibold mb-2", style: { color: C.text } }, "Tu punto de partida"), React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Propuesta básica editable con ejercicios del catálogo."), React.createElement("label", { className: "block text-sm mb-2", style: { color: C.textDim } }, "¿Cuántos días por semana?"), React.createElement("div", { className: "grid grid-cols-4 gap-2 mb-4" }, [2,3,4,5].map(days => React.createElement("button", { key: days, onClick: () => setQuickRoutineDays(days), className: "rounded-lg py-2", style: { background: quickRoutineDays === days ? "rgba(25,245,154,.14)" : C.surfaceAlt, color: quickRoutineDays === days ? C.brassLight : C.text, border: `1px solid ${quickRoutineDays === days ? C.brass : C.border}` } }, `${days} días`))), React.createElement("button", { onClick: makeQuickRoutine, className: "w-full rounded-xl py-3 font-semibold", style: { background: "linear-gradient(120deg,#19d887,#47f2d0)", color: "#06231A" } }, "Crear y adaptar rutina"))), confirmReset && /*#__PURE__*/React.createElement(ConfirmModal, {
+  }), cloudUserId ? "Cerrar sesión" : `Cambiar de usuario (${profile})`))), showQuickRoutine && React.createElement("div", { className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4", style: { background: "rgba(0,0,0,.7)" }, onClick: () => setShowQuickRoutine(false) }, React.createElement("section", { className: "w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5", style: { background: C.surface, border: `1px solid ${C.border}` }, onClick: e => e.stopPropagation() }, React.createElement("h2", { className: "text-lg font-semibold mb-2", style: { color: C.text } }, "Rutinas sugeridas"), React.createElement("p", { className: "text-sm mb-4", style: { color: C.textFaint } }, "Elige cuántos días vas a entrenar. Armamos tu semana: los días de gimnasio con sus ejercicios y, en los demás, recuperación activa y alimentación adecuada. Después la ajustas a tu gusto."), React.createElement("label", { className: "block text-sm mb-2", style: { color: C.textDim } }, "¿Cuántos días por semana?"), React.createElement("div", { className: "grid grid-cols-4 gap-2 mb-4" }, [2,3,4,5].map(days => React.createElement("button", { key: days, onClick: () => setQuickRoutineDays(days), className: "rounded-lg py-2", style: { background: quickRoutineDays === days ? "rgba(47,224,122,.14)" : C.surfaceAlt, color: quickRoutineDays === days ? C.brassLight : C.text, border: `1px solid ${quickRoutineDays === days ? C.brass : C.border}` } }, `${days} días`))), React.createElement("p", { className: "text-xs mb-4", style: { color: C.textFaint } }, PLAN_DESC[quickRoutineDays]), React.createElement("button", { onClick: makeQuickRoutine, className: "w-full rounded-xl py-3 font-semibold", style: { background: "linear-gradient(120deg,#19d887,#7cf2ae)", color: "#06231A" } }, "Crear y adaptar rutina"))), confirmReset && /*#__PURE__*/React.createElement(ConfirmModal, {
     title: "¿Restaurar rutina original?",
     body: "Esto reemplaza los ejercicios, series y descansos por la rutina original. Tu historial de pesos registrados no se borra.",
     onConfirm: resetRoutine,
